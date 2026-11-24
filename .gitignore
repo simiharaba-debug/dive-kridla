@@ -1,0 +1,27 @@
+# Heslá a konfigurácia (vzor .env.example sa odosiela)
+.env
+.env.*
+!.env.example
+
+# Databázy a ich zálohy
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.db
+
+# Lokálne zálohy a originály
+/_zaloha/
+/zaloha-*/
+/_import/
+/Claude outputs/
+
+# Pribalené PHP – START-WEB.bat ho stiahne znova
+/web/tools/
+
+# Osobné dokumenty
+/Maturitna_praca_*
+
+# Logy a systémové súbory
+*.log
+Thumbs.db
+desktop.ini

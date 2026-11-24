@@ -1,0 +1,404 @@
+/* ==========================================================================
+   Divé krídla – dizajn 2026 (vrstva „fx“)
+   Načítava sa iba pri vzhľade „Nový dizajn“ (admin → Vzhľad webu), PO style.css a bo-ui.css.
+   Predošlý dizajn = táto vrstva sa nenačíta (a fx.js tiež nie), nič iné sa nemení.
+   Farby: iba dve farby webu (#efe7d8 / #3b3329) a ich odtiene – tokeny z bo-ui.css časť 13.
+   ========================================================================== */
+
+:root {
+  --fx-ease: cubic-bezier(.16, 1, .3, 1);          /* ease-out-expo */
+  --fx-ease-io: cubic-bezier(.77, 0, .18, 1);
+  --fx-curtain: #3b3329;
+  --fx-curtain-2: #2a241d;
+  --fx-header-h: 4.5rem;
+  --fx-glow: rgba(239, 231, 216, .55);
+}
+:root[data-theme="dark"] { --fx-curtain: #2a241d; --fx-curtain-2: #221d17; --fx-glow: rgba(239, 231, 216, .16); }
+
+/* plynulé posúvanie na kotvy, priestor pre hlavičku */
+html.fx { scroll-behavior: smooth; scroll-padding-top: calc(var(--fx-header-h) + 1rem); }
+/* prechod medzi stránkami robí opona (nižšie), nie View Transitions */
+@view-transition { navigation: none; }
+/* kruhové prepnutie režimu (fx.js) – nový stav sa odkryje kruhom, bez prelínania */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+::selection { background: #3b3329; color: #efe7d8; }
+:root[data-theme="dark"] ::selection { background: #efe7d8; color: #3b3329; }
+
+/* ---------- 1. Opona pri príchode a odchode zo stránky ---------- */
+.fx body::before,
+.fx body::after {
+  content: ""; position: fixed; inset: 0; z-index: 100000; pointer-events: none;
+  background: var(--fx-curtain);
+}
+.fx body::before {                           /* príchod: opona odíde hore */
+  transform-origin: 50% 0;
+  animation: fx-curtain-in .5s var(--fx-ease-io) both;
+  background: linear-gradient(180deg, var(--fx-curtain) 0%, var(--fx-curtain-2) 100%);
+}
+.fx body::after {                            /* odchod: opona príde zdola */
+  transform: scaleY(0); transform-origin: 50% 100%;
+  transition: transform .26s var(--fx-ease-io);
+}
+.fx.fx-leaving body::after { transform: scaleY(1); }
+@keyframes fx-curtain-in { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+.fx.fx-noenter body::before { animation: none; transform: scaleY(0); }
+
+/* obsah stránky sa jemne vynorí za oponou */
+.fx main { animation: fx-page-in .7s .12s var(--fx-ease) both; }
+@keyframes fx-page-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 2. Zrnitosť (jemná textúra papiera) ---------- */
+.fx-grain {
+  position: fixed; inset: -50%; z-index: 9990; pointer-events: none; opacity: .055;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .23  0 0 0 0 .2  0 0 0 0 .16  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: fx-grain 1.2s steps(6) infinite;
+}
+:root[data-theme="dark"] .fx-grain { opacity: .08; mix-blend-mode: screen; filter: invert(1); }
+@keyframes fx-grain {
+  0% { transform: translate(0, 0); } 20% { transform: translate(-4%, 3%); } 40% { transform: translate(3%, -5%); }
+  60% { transform: translate(-6%, 2%); } 80% { transform: translate(5%, 4%); } 100% { transform: translate(0, 0); }
+}
+
+/* ---------- 3. Ukazovateľ prečítania stránky ---------- */
+.fx-progress {
+  position: fixed; left: 0; top: 0; z-index: 9995; width: 100%; height: 2px; pointer-events: none;
+  background: currentColor; color: var(--heading); transform-origin: 0 50%; transform: scaleX(0);
+}
+
+/* ---------- 4. Vlastný kurzor (len myš) ---------- */
+.fx-cursor-on, .fx-cursor-on a, .fx-cursor-on button, .fx-cursor-on [role="button"], .fx-cursor-on label,
+.fx-cursor-on .bo-gallery__item, .fx-cursor-on .bo-video, .fx-cursor-on summary { cursor: none; }
+.fx-cursor-on input, .fx-cursor-on textarea, .fx-cursor-on select, .fx-cursor-on [contenteditable] { cursor: auto; }
+.fx-cursor-on input[type="submit"], .fx-cursor-on input[type="checkbox"], .fx-cursor-on input[type="radio"], .fx-cursor-on input[type="file"] { cursor: none; }
+.fx-cur, .fx-cur-ring {
+  position: fixed; left: 0; top: 0; z-index: 2147483000; pointer-events: none; border-radius: 50%;
+  will-change: transform; opacity: 0; transition: opacity .3s;
+}
+.fx-cur-on .fx-cur, .fx-cur-on .fx-cur-ring { opacity: 1; }
+.fx-cur { width: 8px; height: 8px; margin: -4px 0 0 -4px; background: #efe7d8; mix-blend-mode: difference; }
+.fx-cur-ring {
+  width: 40px; height: 40px; margin: -20px 0 0 -20px; display: grid; place-items: center;
+  border: 1px solid rgba(239, 231, 216, .9); mix-blend-mode: difference;
+  transition: opacity .3s, width .45s var(--fx-ease), height .45s var(--fx-ease), margin .45s var(--fx-ease),
+              background-color .35s, border-color .35s;
+}
+.fx-cur-ring__label {
+  font: 600 .68rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #3b3329;
+  opacity: 0; transform: scale(.6); transition: opacity .25s, transform .45s var(--fx-ease); white-space: nowrap;
+}
+/* nad odkazom / tlačidlom */
+.fx-cur-link .fx-cur-ring { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: rgba(239, 231, 216, .14); }
+.fx-cur-link .fx-cur { transform: scale(0) !important; }
+/* nad fotografiou / videom / kartou – kruh s textom */
+.fx-cur-label .fx-cur-ring {
+  width: 92px; height: 92px; margin: -46px 0 0 -46px; background: #efe7d8; border-color: #efe7d8; mix-blend-mode: normal;
+}
+:root[data-theme="dark"] .fx-cur-label .fx-cur-ring { background: #efe7d8; }
+.fx-cur-label .fx-cur-ring__label { opacity: 1; transform: none; }
+.fx-cur-label .fx-cur { opacity: 0 !important; }
+/* nad textovým poľom */
+.fx-cur-text .fx-cur-ring, .fx-cur-text .fx-cur { opacity: 0 !important; }
+/* stlačenie */
+.fx-cur-down .fx-cur-ring { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+
+/* ---------- 5. Hlavička – sklo, skrytie pri posúvaní nadol ---------- */
+.fx .site-header {
+  transition: transform .55s var(--fx-ease), background-color .4s, box-shadow .4s, border-color .4s;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+.fx .site-header.fx-hidden { transform: translateY(-105%); }
+.fx .site-header.fx-scrolled { box-shadow: 0 10px 30px -18px rgba(42, 36, 29, .35); }
+.fx .site-header__bar { transition: min-height .4s var(--fx-ease); }
+.fx .site-header.fx-scrolled .site-header__bar { min-height: 3.9rem; }
+.fx .logo svg { transition: transform .8s var(--fx-ease); }
+.fx .logo:hover svg { transform: rotate(-12deg) scale(1.06); }
+
+/* odkazy v menu – text sa pri prejdení „pretočí“ */
+.fx-roll { display: inline-block; position: relative; overflow: hidden; vertical-align: top; line-height: 1.25; }
+.fx-roll > span { display: inline-block; transition: transform .55s var(--fx-ease); }
+.fx-roll::after {
+  content: attr(data-t); position: absolute; left: 0; top: 100%; width: 100%;
+  transition: transform .55s var(--fx-ease);
+}
+a:hover > .fx-roll > span, a:focus-visible > .fx-roll > span, a:hover > .fx-roll::after, a:focus-visible > .fx-roll::after { transform: translateY(-100%); }
+.fx .nav__link--main { position: relative; }
+.fx .nav__link--main::before {
+  content: ""; position: absolute; left: .9rem; right: .9rem; bottom: .35rem; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: 100% 50%; transition: transform .55s var(--fx-ease);
+}
+.fx .nav__link--main:hover::before, .fx .nav__link--main.is-active::before { transform: scaleX(1); transform-origin: 0 50%; }
+.fx .nav__link--main.is-active { background: transparent !important; color: var(--heading) !important; }
+@media (max-width: 1100px) { .fx .nav__link--main::before { display: none; } }
+
+/* ---------- 6. Tlačidlá – výplň zo smeru kurzora, magnetický efekt ---------- */
+.fx .btn, .fx .nav__login, .fx .bo-btn { position: relative; overflow: hidden; isolation: isolate; will-change: transform;
+  transition: background-color .3s, color .35s, border-color .3s, box-shadow .35s; }
+.fx .btn::before, .fx .nav__login::before {
+  content: ""; position: absolute; z-index: -1; left: var(--bx, 50%); top: var(--by, 50%);
+  width: 0; height: 0; border-radius: 50%; transform: translate(-50%, -50%);
+  background: var(--fx-fill, #4a4034); transition: width .6s var(--fx-ease), height .6s var(--fx-ease);
+}
+.fx .btn:hover::before, .fx .nav__login:hover::before { width: 260%; height: 600%; }
+.fx .btn--primary, .fx .nav__cta { --fx-fill: #2a241d; }
+.fx .btn--outline, .fx .nav__login { --fx-fill: #3b3329; }
+.fx .btn--outline:hover, .fx .nav__login:hover { color: #efe7d8; border-color: #3b3329; background: transparent; }
+.fx .btn--ghost { --fx-fill: #efe7d8; }
+.fx .btn--ghost:hover { color: #3b3329; background: transparent; }
+:root[data-theme="dark"].fx .btn--primary, :root[data-theme="dark"].fx .nav__cta { --fx-fill: #fbf6ec; }
+:root[data-theme="dark"].fx .btn--outline, :root[data-theme="dark"].fx .nav__login { --fx-fill: #efe7d8; }
+:root[data-theme="dark"].fx .btn--outline:hover, :root[data-theme="dark"].fx .nav__login:hover { color: #3b3329; border-color: #efe7d8; }
+.fx .btn:active { transform: scale(.97); }
+.fx-mag-inner { display: inline-flex; align-items: center; gap: inherit; transition: transform .6s var(--fx-ease); pointer-events: none; }
+
+/* ---------- 7. Nadpisy – slová sa vysúvajú z masky ---------- */
+.fx-w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-bottom: -.12em; }
+.fx-wi { display: inline-block; transform: translateY(110%) rotate(4deg); transform-origin: 0 100%;
+  transition: transform 1.15s var(--fx-ease); transition-delay: calc(var(--i, 0) * 55ms + var(--d, 0ms)); }
+.fx-split.fx-in .fx-wi { transform: none; }
+/* úvodný nadpis je skrytý, kým ho fx.js nerozdelí na slová (poistka: po 1,6 s sa ukáže aj bez skriptu) */
+.fx.js .hero h1, .fx.js .page-hero h1 { animation: fx-failsafe .01s 1s both; }
+.fx.js .hero h1.fx-split, .fx.js .page-hero h1.fx-split { animation: none; opacity: 1; }
+@keyframes fx-failsafe { from { opacity: 0; } to { opacity: 1; } }
+
+/* nadtitulok – linka sa nakreslí */
+.fx .eyebrow { display: inline-flex; align-items: center; gap: .75rem; }
+.fx .eyebrow::before { transform-origin: 0 50%; }
+.fx .js-eyebrow-line::before, .fx .fx-in .eyebrow::before, .fx .fx-in.eyebrow::before { animation: fx-line 1s .2s var(--fx-ease) both; }
+@keyframes fx-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ---------- 8. Odhaľovanie pri posúvaní ---------- */
+.fx.js .reveal, .fx.bo-js [data-reveal] {
+  opacity: 0; transform: translateY(44px); filter: blur(6px);
+  transition: opacity 1s var(--fx-ease), transform 1.2s var(--fx-ease), filter 1s var(--fx-ease);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+.fx.js .reveal.is-in, .fx.bo-js [data-reveal].is-visible { opacity: 1; transform: none; filter: none; }
+.fx [data-fx="up"] { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--fx-ease), transform 1.2s var(--fx-ease); transition-delay: calc(var(--i, 0) * 70ms); }
+.fx [data-fx="up"].fx-in { opacity: 1; transform: none; }
+/* fotografie – odhalenie cez masku a doostrenie */
+.fx [data-fx="clip"] { clip-path: inset(12% 8% 12% 8% round 28px); transition: clip-path 1.4s var(--fx-ease); transition-delay: calc(var(--i, 0) * 70ms); }
+.fx [data-fx="clip"] img { transform: scale(1.25); transition: transform 1.8s var(--fx-ease); transition-delay: calc(var(--i, 0) * 70ms); }
+.fx [data-fx="clip"].fx-in { clip-path: inset(0 0 0 0 round 0); }
+.fx [data-fx="clip"].fx-in img { transform: scale(1); }
+
+/* ---------- 9. Úvod (index) ---------- */
+.fx .hero { position: relative; padding: clamp(2.5rem, 6vh, 5rem) 0 clamp(3rem, 8vh, 6rem); overflow: hidden; }
+.fx .hero::before {                        /* svetelná škvrna, ktorá sleduje kurzor */
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(600px circle at var(--hx, 70%) var(--hy, 30%), var(--fx-glow), transparent 60%);
+  /* svetlo sa k spodnému okraju úvodu plynulo stratí – nikdy nevznikne ostrá hrana pri posúvaní (22. 11. 2026) */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 55%, transparent 100%);
+  opacity: 0; transition: opacity .6s var(--fx-ease);
+}
+.fx .hero.fx-glow::before { opacity: 1; }
+.fx .hero__grid { position: relative; z-index: 1; }
+@media (min-width: 900px) {
+  .fx .hero { min-height: calc(100svh - var(--fx-header-h)); display: flex; align-items: center; }
+  .fx .hero__grid { grid-template-columns: 1.08fr .92fr; gap: clamp(2rem, 4vw, 5rem); }
+}
+.fx .hero__text h1 { font-size: clamp(2.6rem, 1.4rem + 4.6vw, 5.6rem); letter-spacing: -.035em; line-height: .98; font-weight: 600; }
+.fx .hero .lead { font-size: clamp(1.05rem, .95rem + .4vw, 1.3rem); max-width: 34ch; }
+.fx .hero .eyebrow, .fx .hero .lead, .fx .hero .btn-row, .fx .hero__phone { animation: fx-rise 1.2s var(--fx-ease) both; }
+.fx .hero .eyebrow { animation-delay: .2s; }
+.fx .hero .lead { animation-delay: .45s; }
+.fx .hero .btn-row { animation-delay: .55s; }
+.fx .hero__phone { animation-delay: .65s; }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+.fx .hero h1 .fx-wi { --d: 250ms; }
+
+.fx .hero__photo {
+  position: relative; max-width: none; border-radius: 32px; overflow: visible; background: transparent; box-shadow: none;
+  transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .9s var(--fx-ease);
+}
+.fx .hero__photo img {
+  border-radius: 32px; aspect-ratio: 4 / 5; max-height: min(74vh, 720px);
+  animation: fx-hero-img 1.8s .5s var(--fx-ease) both;
+}
+.fx .hero__photo .fx-par { box-shadow: 0 50px 90px -40px rgba(42, 36, 29, .55); }
+.fx .hero__photo .fx-par img { border-radius: 0; animation: none; transform: scale(1.18); }
+.fx .hero__photo .fx-par { animation: fx-hero-img 1.4s .2s var(--fx-ease) both; }
+@media (max-width: 899px) { .fx .hero__photo img { aspect-ratio: 4 / 3; max-height: 46vh; } }
+@keyframes fx-hero-img { from { clip-path: inset(100% 0 0 0 round 32px); } to { clip-path: inset(0 0 0 0 round 32px); } }
+.fx .hero__photo figcaption { display: none; }
+.fx .hero__photo .fx-par { display: block; overflow: hidden; border-radius: 32px; }
+.fx .hero__photo .fx-par img { will-change: transform; display: block; width: 100%; }
+
+.fx-scrollcue {
+  position: absolute; left: 50%; bottom: 1.4rem; z-index: 2; translate: -50% 0;
+  display: none; flex-direction: column; align-items: center; gap: .55rem;
+  font: 600 .68rem var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); text-decoration: none;
+  animation: fx-rise 1s 1s var(--fx-ease) both;
+}
+.fx-scrollcue span { width: 1px; height: 46px; background: linear-gradient(var(--line-strong), transparent); position: relative; overflow: hidden; }
+.fx-scrollcue span::after { content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--heading); animation: fx-drip 1.8s var(--fx-ease-io) infinite; }
+@keyframes fx-drip { to { top: 110%; } }
+@media (min-width: 900px) and (min-height: 700px) { .fx-scrollcue { display: flex; } }
+
+/* ---------- 10. Karty – 3D náklon a odlesk ---------- */
+.fx .path-card, .fx .bo-card, .fx .gcat, .fx .lib-cat, .fx .topic-card, .fx .link-card {
+  --rx: 0deg; --ry: 0deg; position: relative; transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--ty, 0));
+  transition: transform .8s var(--fx-ease), box-shadow .6s var(--fx-ease), border-color .4s;
+}
+/* bez zdvihu: karta nesmie ujsť spod kurzora (inak hover na hrane preskakuje) */
+.fx :is(li:hover > .path-card), .fx :is(li:hover > .bo-card), .fx :is(li:hover > .gcat), .fx :is(li:hover > .lib-cat), .fx :is(li:hover > .topic-card) { --ty: 0px; box-shadow: 0 40px 70px -40px rgba(42, 36, 29, .55); }
+.fx .fx-tilting { transition: transform .15s linear, box-shadow .6s var(--fx-ease), border-color .4s; }
+.fx .path-card::after, .fx .bo-card::after, .fx .gcat::after, .fx .lib-cat::after, .fx .topic-card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 3;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 252, 245, .26), transparent 45%);
+  opacity: 0; transition: opacity .5s;
+}
+.fx :is(li:hover > .path-card)::after, .fx :is(li:hover > .bo-card)::after, .fx :is(li:hover > .gcat)::after, .fx :is(li:hover > .lib-cat)::after, .fx :is(li:hover > .topic-card)::after { opacity: 1; }
+.fx .path-card img, .fx .bo-card__media img, .fx .gcat__media img { transition: transform 1.2s var(--fx-ease), filter .8s; }
+.fx :is(li:hover > .path-card) img, .fx :is(li:hover > .bo-card) .bo-card__media img, .fx :is(li:hover > .gcat) .gcat__media img { transform: scale(1.08); }
+.fx .path-card { overflow: hidden; }
+.fx .path-card__num { font: italic 500 2.6rem/1 var(--display); letter-spacing: -.04em; opacity: .35; transition: opacity .5s; }
+.fx :is(li:hover > .path-card) .path-card__num { opacity: 1; }
+.fx .path-card__title { font-size: clamp(1.5rem, 1.2rem + .8vw, 1.95rem); letter-spacing: -.02em; }
+.fx .path-card__go { display: inline-flex; gap: .4rem; }
+.fx .path-card__go, .fx .bo-card__more { transition: letter-spacing .6s var(--fx-ease); }
+.fx :is(li:hover > .path-card) .path-card__go, .fx :is(li:hover > .bo-card) .bo-card__more { letter-spacing: .04em; }
+/* posledná osamotená karta v mriežke 3 stĺpcov – široká, fotka vľavo */
+@media (min-width: 900px) {
+  .fx .bo-cards--3 > li:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  .fx .bo-cards--3 > li:last-child:nth-child(3n+1) .bo-card { flex-direction: row; }
+  .fx .bo-cards--3 > li:last-child:nth-child(3n+1) .bo-card__media { flex: 0 0 calc((100% - 2 * 1.5rem) / 3); aspect-ratio: 16 / 9; }
+  .fx .bo-cards--3 > li:last-child:nth-child(3n+1) .bo-card__body { justify-content: center; padding: 1.5rem 2rem; }
+  .fx .bo-cards--3 > li:last-child:nth-child(3n+1) .bo-card__title { font-size: 1.6rem; }
+}
+
+/* ---------- 11. Podstránky – úvodný pás ---------- */
+.fx .page-hero { position: relative; overflow: hidden; padding: clamp(3rem, 7vh, 6rem) 0; isolation: isolate; }
+.fx .page-hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(700px circle at var(--hx, 80%) var(--hy, 20%), rgba(239, 231, 216, .12), transparent 60%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 60%, transparent 100%);
+}
+.fx .page-hero::after {                     /* jemná mriežka */
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
+  background-image: linear-gradient(rgba(239, 231, 216, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(239, 231, 216, .05) 1px, transparent 1px);
+  background-size: 64px 64px; mask-image: radial-gradient(ellipse at 70% 30%, #000 0%, transparent 70%);
+}
+.fx .page-hero h1 { font-size: clamp(2.2rem, 1.3rem + 3.4vw, 4.4rem); letter-spacing: -.03em; line-height: 1.02; }
+.fx .page-hero h1 .fx-wi { --d: 220ms; }
+.fx .page-hero .eyebrow, .fx .page-hero .lead { animation: fx-rise 1.1s var(--fx-ease) both; }
+.fx .page-hero .eyebrow { animation-delay: .15s; }
+.fx .page-hero .lead { animation-delay: .45s; }
+.fx .page-hero .frame { border-radius: 28px; box-shadow: 0 50px 90px -45px #000; animation: fx-frame-in 1.3s .2s var(--fx-ease) both; }
+.fx .page-hero .frame img { transform: scale(1.12); will-change: transform; }
+@keyframes fx-frame-in { from { clip-path: inset(0 0 100% 0 round 28px); } to { clip-path: inset(0 0 0 0 round 28px); } }
+
+/* ---------- 12. Obsah: nadpisy sekcií, odkazy, fotografie ---------- */
+.fx .section-head h2 { letter-spacing: -.028em; }
+.fx .prose a:not(.btn), .fx .service a:not(.btn) {
+  text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size .55s var(--fx-ease);
+}
+.fx .prose a:not(.btn):hover, .fx .service a:not(.btn):hover { background-size: 0 1px; background-position: 100% 100%; }
+/* pätička: jemné podčiarknutie (funguje aj pri odkaze na dva riadky) */
+.fx .site-footer a:not(.btn) { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .28em;
+  text-decoration-color: rgba(239, 231, 216, .3); transition: text-decoration-color .35s, color .35s; }
+.fx .site-footer a:not(.btn):hover { text-decoration-color: currentColor; }
+.fx .bo-gallery__item img, .fx .photo-grid img { transition: transform 1.1s var(--fx-ease), filter .6s; }
+.fx .bo-gallery__item:hover img { transform: scale(1.1); }
+.fx .bo-video { transition: transform .8s var(--fx-ease), box-shadow .6s; }
+.fx .bo-video:hover { transform: none; }
+.fx .band--forest .cta h2 { font-size: clamp(1.8rem, 1.2rem + 2.4vw, 3.2rem); letter-spacing: -.03em; }
+
+/* počítadlá */
+.fx .stats strong { font-variant-numeric: tabular-nums; }
+
+/* ---------- 13. Pätička – veľký nápis ---------- */
+.fx .site-footer { position: relative; overflow: hidden; }
+.fx-wordmark {
+  margin: 2.5rem 0 1rem; font: 600 clamp(3rem, 16vw, 15rem)/.85 var(--display); letter-spacing: -.055em;
+  width: max-content; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(239, 231, 216, .35);
+  transition: color .8s var(--fx-ease), -webkit-text-stroke-color .8s;
+}
+.fx-wordmark:hover { color: rgba(239, 231, 216, .9); -webkit-text-stroke-color: transparent; }
+.fx-wordmark .fx-ch { display: inline-block; transform: translateY(100%); opacity: 0; transition: transform 1.2s var(--fx-ease), opacity 1s; transition-delay: calc(var(--i) * 40ms); }
+.fx-wordmark.fx-in .fx-ch { transform: none; opacity: 1; }
+
+/* ---------- 15. Mobil a dotykové zariadenia ---------- */
+@media (hover: none), (pointer: coarse) {
+  .fx .path-card, .fx .bo-card, .fx .gcat, .fx .lib-cat, .fx .topic-card { transform: none !important; }
+  .fx .path-card::after, .fx .bo-card::after, .fx .gcat::after, .fx .lib-cat::after, .fx .topic-card::after { display: none; }
+}
+@media (max-width: 767px) {
+  .fx .hero__text h1 { font-size: clamp(2.2rem, 1.3rem + 5vw, 3.1rem); }
+  .fx [data-fx="clip"] { clip-path: inset(6% 4% 6% 4% round 18px); }
+  .fx .site-header.fx-hidden { transform: none; }        /* na mobile hlavička ostáva */
+}
+
+/* ---------- 16. Bez animácií pre tých, čo si to nastavili ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fx body::before, .fx body::after { display: none; }
+  .fx main, .fx .hero .eyebrow, .fx .hero .lead, .fx .hero .btn-row, .fx .hero__phone, .fx .hero__photo img,
+  .fx .page-hero .eyebrow, .fx .page-hero .lead, .fx .page-hero .frame, .fx .hero__photo .fx-par, .fx-scrollcue, .fx.js .hero h1, .fx.js .page-hero h1 { animation: none !important; opacity: 1; }
+  .fx-grain, .fx-cur, .fx-cur-ring, .fx-progress { display: none; }
+  .fx-wi, .fx-wordmark .fx-ch { transform: none !important; opacity: 1 !important; }
+  .fx [data-fx], .fx [data-fx] img { clip-path: none !important; transform: none !important; opacity: 1 !important; }
+}
+
+/* veľké monitory: obsah využije viac šírky (23. 11. 2026) */
+@media (min-width: 1700px) { :root { --container: 112rem; } }
+
+/* ---------- 17. Veľkosť rozhrania podľa obrazovky (23. 11. 2026) ----------
+   Všetko je v rem, takže mierka <html> zväčší text, tlačidlá aj medzery naraz. Administrácia fx.css nenačítava. */
+@media (min-width: 1100px) { html.fx { font-size: 17px; } }
+@media (min-width: 1500px) { html.fx { font-size: 18.5px; } }
+@media (min-width: 1800px) { html.fx { font-size: 20px; } }
+@media (min-width: 2400px) { html.fx { font-size: 23px; } }
+@media (max-width: 599px)  { html.fx { font-size: 15px; } }
+
+/* drobné popisky: spodná hranica čitateľnosti */
+.fx .eyebrow, .fx .small, .fx .steps__n, .fx .bo-fact__label, .fx .bo-tl__meta, .fx .tip-note__label, .fx .mini-stats dt, .fx .mini-stats dd, .fx .facts dt,
+.fx .bo-video__dur, .fx .gcat__count, .fx .bo-gallery__more span, .fx .field-msg, .fx .bo-video__title, .fx .tag { font-size: max(.82rem, 12.5px); }
+.fx .eyebrow { letter-spacing: .11em; }
+.fx .logo small { font-size: max(.68rem, 10.5px); }
+@media (min-width: 1100px) {
+  .fx .bo-video__title, .fx .bo-card__text, .fx .gcat__text, .fx .tip__body p { font-size: .9rem; }
+  .fx .site-header .nav__link, .fx .site-header .nav__login, .fx .site-header .nav__phone, .fx .site-header .btn { font-size: .88rem; }
+}
+/* 1100–1439: menu sa musí zmestiť do jedného riadka */
+@media (min-width: 1100px) and (max-width: 1439px) {
+  .fx .site-header .nav__link { padding-inline: .55rem; }
+  .fx .site-header .nav__link, .fx .site-header .nav__login, .fx .site-header .btn { font-size: .84rem; }
+}
+/* telefón: pokojnejšie nadpisy, polia formulárov ostávajú 16 px (iOS inak priblíži stránku) */
+@media (max-width: 599px) {
+  .fx .page-hero h1 { font-size: clamp(1.6rem, 7vw, 2rem); line-height: 1.08; }
+  .fx .section-head h2, .fx main h2 { font-size: clamp(1.3rem, 5.6vw, 1.6rem); line-height: 1.15; }
+  .fx main h3 { font-size: 1.15rem; }
+  .fx .section-head .lead, .fx .page-hero .lead { font-size: 1rem; }
+  .fx .display, .fx .band--forest .cta h2 { font-size: 1.35rem; }
+  .fx .price-card__price, .fx .stats strong, .fx .facts dd { font-size: 1.45rem; }
+  .fx .bo-tl__num { font-size: 1.7rem; }
+  .fx .auth__card h1 { font-size: 1.6rem; }
+  .fx input:not([type=checkbox]):not([type=radio]), .fx select, .fx textarea { font-size: 16px; }
+}
+@media (max-width: 599px) {
+  .fx .btn, .fx .hero .btn-row .btn, .fx .cta .btn-row .btn { font-size: .93rem; }
+  .fx .bo-card__text { font-size: .88rem; }
+  .fx .site-footer, .fx .site-banner, .fx .hero__phone { font-size: .92rem; }
+  .fx .section-head h1 { font-size: clamp(1.6rem, 7vw, 2rem); line-height: 1.1; }
+  .fx .hero.hx .eyebrow { font-size: 11.5px; letter-spacing: .07em; }
+}
+.fx .logo, .fx .logo small { white-space: nowrap; flex: none; }
+@media (min-width: 1100px) and (max-width: 1699px) { .fx .site-header .nav__phone { display: none; } }   /* telefón je v úvode aj v pätičke */
+:root[data-theme="dark"].fx .form-card .btn--dark { background: var(--btn-bg); color: var(--btn-fg); --fx-fill: #fbf6ec; }
+:root[data-theme="dark"].fx .form-card { --btn-bg: var(--on-dark); --btn-fg: #3b3329; }
+/* menu v jednom riadku aj pre prihláseného používateľa */
+.fx .site-header .nav__link, .fx .site-header .nav__login, .fx .site-header .btn { white-space: nowrap; }
+.fx .nav__user-name { display: inline-block; max-width: 7rem; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+@media (min-width: 1101px) and (max-width: 1699px) {
+  .fx .site-header .nav__link { padding-inline: .5rem; font-size: .85rem; }
+  .fx .nav__user-name { max-width: 4.5rem; }
+}
+@media (min-width: 1101px) and (max-width: 1299px) { .fx .nav__user-name { display: none; } .fx .site-header .nav__link { padding-inline: .4rem; font-size: .8rem; } }

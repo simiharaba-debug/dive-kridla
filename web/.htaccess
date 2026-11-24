@@ -1,0 +1,36 @@
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+DirectoryIndex index.php
+Options -Indexes
+
+# --- interné súbory nikdy nie sú dostupné z webu ---
+<FilesMatch "^(\.env.*|.*\.(sqlite|sqlite-wal|sqlite-shm|sql|md|example|ini|gitignore)|router\.php)$">
+  Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteRule ^(storage|includes|data|migrations|bin)(/|$) - [F,L]
+
+# Skryté prípony: staré adresy /stranka.php → 301 na /stranka, /index.php → / (iba GET/HEAD, nie api/)
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \s(\S*?/)index\.php[\s?]
+RewriteRule ^(.*/)?index\.php$ %1 [R=301,L,NE]
+RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
+RewriteCond %{THE_REQUEST} \.php[\s?]
+RewriteRule ^((?!api/).+?)\.php$ $1 [R=301,L]
+
+# Adresy bez prípony .php (napr. /odchyt-holubov)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ $1.php [L]
+
+# Limity nahrávania (ak PHP beží ako Apache modul; pri PHP-FPM pozri .user.ini)
+<IfModule mod_php.c>
+  php_value upload_max_filesize 200M
+  php_value post_max_size 210M
+  php_value max_execution_time 300
+</IfModule>
+
+<FilesMatch "\.(webp|jpg|mp4|webm|woff2|css|js)$">
+  Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>

@@ -1,0 +1,42 @@
+AKO ROZBEHAŤ KONTAKTNÝ FORMULÁR (cca 5 minút)
+==============================================
+
+Web posiela správy z formulára cez Gmail. Gmail ale nedovolí webu prihlásiť sa vaším
+bežným heslom – potrebuje špeciálne „heslo aplikácie“. Je to 16 písmen, ktoré vám
+vygeneruje Google a slúžia iba na to, aby sa web mohol prihlásiť a posielať poštu.
+Vaše bežné heslo do Gmailu zostáva nezmenené a web ho nikdy nepozná.
+
+KROK 1 – Zapnite dvojstupňové overenie (ak ho ešte nemáte)
+  1. Otvorte  https://myaccount.google.com/signinoptions/twosv
+  2. Prihláste sa do Gmail účtu, z ktorého má web posielať správy.
+  3. Kliknite „Zapnúť dvojstupňové overenie“ a postupujte podľa pokynov (zadáte číslo mobilu,
+     príde vám SMS kód). Bez tohto kroku Google heslo aplikácie nevytvorí.
+
+KROK 2 – Vytvorte heslo aplikácie
+  1. Otvorte  https://myaccount.google.com/apppasswords
+  2. Do políčka „Názov aplikácie“ napíšte napr.:  Web Dive kridla
+  3. Kliknite „Vytvoriť“.
+  4. Zobrazí sa 16 písmen v rámčeku, napr.  abcd efgh ijkl mnop
+     Skopírujte si ich (Ctrl+C). Po zatvorení okna sa už znova nezobrazia –
+     ak ich stratíte, jednoducho vytvorte nové.
+
+KROK 3 – Spustite sprievodcu
+  1. V priečinku  biologicka-ochrana-php\web  dvakrát kliknite na  NASTAVIT-EMAIL.bat
+  2. Na otázku o otvorení stránky Google odpovedzte N (heslo už máte).
+  3. Zadajte Gmail adresu z kroku 1.
+  4. Vložte heslo aplikácie (pravý klik alebo Ctrl+V; písmená sa pri písaní nezobrazujú – to je v poriadku).
+  5. Zadajte, kam majú chodiť správy z formulára, alebo stlačte Enter (daniel.haraba@gmail.com).
+  6. Sprievodca hneď odošle testovaciu správu. Ak uvidíte „HOTOVO“, pozrite sa do schránky
+     (aj do priečinka Spam). Formulár na webe odvtedy funguje – web netreba reštartovať.
+
+AK SA TO NEPODARÍ
+  „Server odmietol prihlásenie“  → zlé heslo aplikácie alebo iná Gmail adresa, než pre ktorú
+                                   ste heslo vytvorili. Vytvorte nové heslo a spustite sprievodcu znova.
+  „Nastavenie nie je dostupné“ na stránke Google → nie je zapnuté dvojstupňové overenie (krok 1),
+                                   alebo ide o firemný/školský účet, kde to zakázal správca.
+  „Nepodarilo sa pripojiť“       → chýba internet alebo antivírus/firewall blokuje odchádzajúcu poštu
+                                   (port 587).
+
+Iný poskytovateľ ako Gmail: v súbore web\.env vyplňte SMTP_HOST, SMTP_PORT, SMTP_SECURE,
+SMTP_USER, SMTP_PASS (údaje vám dá poskytovateľ e-mailu) a overte príkazom
+  tools\php\php.exe -c tools\php\php.ini bin\test-mail.php
