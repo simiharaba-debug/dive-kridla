@@ -338,3 +338,4 @@ a čo už bolo zmenené. Po každej väčšej úprave doplniť sekciu „Denník
   `#vysetrenie` (endoskopia-1, -2), Tráviaca sústava endoskopia-3, Podávanie liečiv endoskopia-4, Oči oko-1/-2; Rehabilitácia – výzva s oko-2.
   Test: 17 stránok × 7 rozlíšení, hover sweep, admin a predošlý dizajn na dočasnej kópii (zmazaná).
 - 24. 11. 2026 - Zaloha `_zaloha\2026-11-24_pred-lazyload`. Lazy load, mensie verzie fotiek, prednacitanie, pravo prezerat galeriu, online verzia pre GitHub Pages. Merane v headless Edge: uvod 2197 -> 594 KB, odchov 3082 -> 322 KB. Prava testovane na kopii DB.
+- 24. 11. 2026 - theme-init.js: verejna stranka po otvoreni a obnoveni zacina uplne hore (oznamenie bolo odrezane kvoli zapamatanemu posunu); navrat Spat poziciu zachova.
