@@ -33,19 +33,19 @@ html.fx { scroll-behavior: smooth; scroll-padding-top: calc(var(--fx-header-h) +
 }
 .fx body::before {                           /* príchod: opona odíde hore */
   transform-origin: 50% 0;
-  animation: fx-curtain-in .5s var(--fx-ease-io) both;
+  animation: fx-curtain-in .38s var(--fx-ease-io) both;
   background: linear-gradient(180deg, var(--fx-curtain) 0%, var(--fx-curtain-2) 100%);
 }
 .fx body::after {                            /* odchod: opona príde zdola */
   transform: scaleY(0); transform-origin: 50% 100%;
-  transition: transform .26s var(--fx-ease-io);
+  transition: transform .13s var(--fx-ease-io);
 }
 .fx.fx-leaving body::after { transform: scaleY(1); }
 @keyframes fx-curtain-in { from { transform: scaleY(1); } to { transform: scaleY(0); } }
 .fx.fx-noenter body::before { animation: none; transform: scaleY(0); }
 
 /* obsah stránky sa jemne vynorí za oponou */
-.fx main { animation: fx-page-in .7s .12s var(--fx-ease) both; }
+.fx main { animation: fx-page-in .5s .04s var(--fx-ease) both; }
 @keyframes fx-page-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
 /* ---------- 2. Zrnitosť (jemná textúra papiera) ---------- */

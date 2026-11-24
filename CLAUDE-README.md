@@ -225,6 +225,26 @@ a čo už bolo zmenené. Po každej väčšej úprave doplniť sekciu „Denník
 - Natvrdo zapísaný telefón nahradený `$SITE['contact']` (pätička, index, O nás, Zdravie, Rehabilitácia, hlásenia formulárov). SEO popisy v data/site.php
   telefón stále obsahujú (meniteľné v SEO).
 
+## Rýchlosť načítania (24. 11. 2026)
+- `includes/speed.php` (spätné volanie `ob_start` vo functions.php): `<img loading="lazy">` verejných stránok → `data-src` + `data-srcset`, pôvodný
+  `<img>` v `<noscript>`; hlavná fotka (`fetchpriority="high"`) dostane `srcset`; HTML ide gzipom. V šablónach sa píše obyčajné `loading="lazy"`.
+- `assets/js/speed.js`: stiahne fotku ~300 px pred zobrazením (meria polohu, nie IntersectionObserver – ten nevidí clip-path masky), prednačíta
+  podstránku pri prejdení myšou / dotyku (nie admin/účet, nie pri šetrení dát).
+- Menšie verzie fotiek `assets/img/r/ID-{360,800,1200}.webp` → po pridaní fotky do assets/img spustiť `OBRAZKY-VARIANTY.bat`.
+- GSAP + ScrollTrigger sa načítavajú iba na úvode. Opona kratšia (odchod 0,13 s, príchod 0,38 s). router.php: gzip a cache pre assets.
+
+## Právo iba prezerať administrátorskú galériu (24. 11. 2026)
+- `users.gallery_view` (migrácia 008 + pgsql), `can_view_private_gallery()` / `require_gallery_viewer()` v auth.php. Zapína admin:
+  Používatelia → „Povoliť galériu“. Platí pre `moja-galeria` a `private-media`; všetky úpravy, api/ a admin stránky ostávajú len pre rolu admin.
+  Zmena roly právo vynuluje.
+
+## Online verzia – GitHub Pages (24. 11. 2026)
+- https://simiharaba-debug.github.io/dive-kridla/ – Pages publikuje koreň vetvy main. PHP tam nejde, preto `OBNOVIT-ONLINE.bat`
+  (`bin/export-github.php`) vygeneruje statické `*.html` do koreňa repozitára (neupravovať ručne), `.nojekyll`, nahraté verejné fotky do
+  `assets/online`. **Po každej zmene obsahu/dizajnu: export → commit → push.** Bez prihlásenia, administrácie a súkromnej galérie;
+  formuláre otvoria e-mail (`online-form.js`). Plná verzia potrebuje PHP hosting.
+- Používateľ chce každú zmenu vždy uložiť aj na GitHub.
+
 ## Na zváženie (nezmenené)
 - `data/o-nas.php`: „Člen SKS od roku 1998“ (Slovenský klub sokoliarov) – ponechané, ide o životopisný údaj; rozhodnúť.
 - (vyriešené) Fotka Daniela Harabu na O nás = `daniel-2024` (záber z videa 27. 9. 2024, potvrdené používateľom); stará `tim-daniel` ostala v assets.
@@ -317,3 +337,4 @@ a čo už bolo zmenené. Po každej väčšej úprave doplniť sekciu „Denník
   na nehybnom `li` (fx.js 12) – **hover nikdy nesmie posúvať prvok spod kurzora**. Telefón v hlavičke až od 1700 px. Fotky: Zdravie – nová sekcia
   `#vysetrenie` (endoskopia-1, -2), Tráviaca sústava endoskopia-3, Podávanie liečiv endoskopia-4, Oči oko-1/-2; Rehabilitácia – výzva s oko-2.
   Test: 17 stránok × 7 rozlíšení, hover sweep, admin a predošlý dizajn na dočasnej kópii (zmazaná).
+- 24. 11. 2026 - Zaloha `_zaloha\2026-11-24_pred-lazyload`. Lazy load, mensie verzie fotiek, prednacitanie, pravo prezerat galeriu, online verzia pre GitHub Pages. Merane v headless Edge: uvod 2197 -> 594 KB, odchov 3082 -> 322 KB. Prava testovane na kopii DB.

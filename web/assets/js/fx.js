@@ -54,7 +54,7 @@
       if (/\.(pdf|jpe?g|png|webp|zip|mp4)$/i.test(url.pathname) || /\/api\//.test(url.pathname)) return;
       e.preventDefault();
       root.classList.add('fx-leaving');
-      setTimeout(function () { location.href = url.href; }, 240);
+      setTimeout(function () { location.href = url.href; }, 130);
     });
     window.addEventListener('pageshow', function (e) { if (e.persisted) { root.classList.remove('fx-leaving'); root.classList.add('fx-noenter'); } });
   })();

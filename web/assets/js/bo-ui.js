@@ -21,7 +21,7 @@
     if (!items.length) return;
     var data = items.map(function (a) {
       var img = a.querySelector('img');
-      return { full: a.getAttribute('href') || (img && img.currentSrc) || '', thumb: img ? (img.currentSrc || img.src) : '',
+      return { full: a.getAttribute('href') || '', thumb: img ? (img.getAttribute('data-src') || img.currentSrc || img.src) : '',
                alt: img ? img.alt : '', caption: a.getAttribute('data-caption') || (img ? img.alt : '') };
     });
     items.forEach(function (a, i) {

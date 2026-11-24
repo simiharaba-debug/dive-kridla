@@ -82,7 +82,7 @@ function current_user(): ?array {
     session_if_present();
     $user = null;
     if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['uid'])) {
-        $s = db()->prepare('SELECT id, username, email, role, created_at FROM users WHERE id = ?');
+        $s = db()->prepare('SELECT id, username, email, role, gallery_view, created_at FROM users WHERE id = ?');
         $s->execute([(int)$_SESSION['uid']]);
         $user = $s->fetch() ?: null;
         if (!$user) { unset($_SESSION['uid']); }
@@ -92,6 +92,9 @@ function current_user(): ?array {
 }
 function reset_user_cache(): void { /* cache je static v current_user(); po zmene presmerujeme, takže netreba */ }
 function is_admin(): bool { $u = current_user(); return $u && $u['role'] === 'admin'; }
+
+/** Súkromná galéria: administrátor, alebo používateľ s právom iba na prezeranie (users.gallery_view). Upravovať môže len admin. */
+function can_view_private_gallery(): bool { $u = current_user(); return $u && ($u['role'] === 'admin' || (int)$u['gallery_view'] === 1); }
 
 function login_user(int $id, bool $remember): void {
     session_open();
@@ -136,7 +139,7 @@ function remember_login(): ?array {
         return null;
     }
     db()->prepare('DELETE FROM remember_tokens WHERE id = ?')->execute([$t['id']]);   // rotácia tokenu
-    $u = db()->prepare('SELECT id, username, email, role, created_at FROM users WHERE id = ?');
+    $u = db()->prepare('SELECT id, username, email, role, gallery_view, created_at FROM users WHERE id = ?');
     $u->execute([$t['user_id']]);
     $user = $u->fetch();
     if (!$user) return null;
@@ -224,6 +227,11 @@ function redirect(string $page): never { header('Location: ' . $page); exit; }
 function require_login(): array {
     $u = current_user();
     if (!$u) { flash('error', 'Pre túto stránku sa musíte prihlásiť.'); redirect('prihlasenie'); }
+    return $u;
+}
+function require_gallery_viewer(): array {
+    $u = require_login();
+    if (!can_view_private_gallery()) render_forbidden();
     return $u;
 }
 function require_admin(): array {

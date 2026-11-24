@@ -336,9 +336,9 @@ function gallery_page(string $scope): void {
         /* ---------- prehľad ---------- */
         echo '<section class="page-top"><div class="container"><div class="section-head reveal">';
         if ($private) {
-            echo '<p class="eyebrow geyebrow-lock">' . gsvg('lock', 14) . 'Súkromné · iba pre administrátora</p><h1>Moja administrátorská galéria</h1>'
-               . '<p class="lead">Súkromné fotografie a videá v kategóriách. Nezobrazujú sa návštevníkom ani registrovaným používateľom a súbory sú uložené mimo verejne dostupných priečinkov.</p>'
-               . '<div class="btn-row"><a class="btn btn--outline" href="fotogaleria">Verejná fotogaléria</a><a class="btn btn--outline" href="admin">Administrácia</a></div>';
+            echo '<p class="eyebrow geyebrow-lock">' . gsvg('lock', 14) . 'Súkromné · ' . ($admin ? 'iba pre administrátora a vybraných používateľov' : 'iba na prezeranie') . '</p><h1>' . ($admin ? 'Moja administrátorská galéria' : 'Administrátorská galéria') . '</h1>'
+               . '<p class="lead">Súkromné fotografie a videá v kategóriách. Nezobrazujú sa návštevníkom ani ostatným používateľom a súbory sú uložené mimo verejne dostupných priečinkov.</p>'
+               . '<div class="btn-row"><a class="btn btn--outline" href="fotogaleria">Verejná fotogaléria</a>' . ($admin ? '<a class="btn btn--outline" href="admin">Administrácia</a>' : '<a class="btn btn--outline" href="ucet">Môj účet</a>') . '</div>';
         } else {
             echo '<p class="eyebrow">Fotogaléria</p><h1>Fotografie a videá z našej práce</h1>'
                . '<p class="lead">Vyberte si tému. Po otvorení kategórie zobrazíte fotografie vo väčšom náhľade a môžete medzi nimi listovať šípkami alebo potiahnutím prsta.</p>';

@@ -31,6 +31,11 @@ RewriteRule ^(.+)$ $1.php [L]
   php_value max_execution_time 300
 </IfModule>
 
-<FilesMatch "\.(webp|jpg|mp4|webm|woff2|css|js)$">
-  Header set Cache-Control "public, max-age=2592000"
-</FilesMatch>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(webp|jpg|mp4|webm|woff2|css|js)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/css text/javascript application/javascript image/svg+xml
+</IfModule>

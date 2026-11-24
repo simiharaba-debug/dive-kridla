@@ -20,8 +20,9 @@
     p.addEventListener('focusin', on);
   });
 
-  if (reduce || !gsap || !ST) return;
-  gsap.registerPlugin(ST);
+  if (reduce) return;
+  var motion = !!(gsap && ST);   // GSAP sa načítava iba na úvode
+  if (motion) gsap.registerPlugin(ST);
 
   /* ---------- Lenis ---------- */
   if (fine && window.Lenis) {
@@ -38,14 +39,16 @@
         return false;
       }
     });
-    lenis.on('scroll', ST.update);
-    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-    gsap.ticker.lagSmoothing(0);
+    if (motion) {
+      lenis.on('scroll', ST.update);
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    } else (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
   }
 
   /* ---------- úvod ---------- */
   var hero = d.querySelector('.hx');
-  if (!hero) return;
+  if (!hero || !motion) return;
   var media = hero.querySelector('.hx__move');
   gsap.fromTo(media, { scale: 1.22 }, { scale: 1.06, duration: 2.2, ease: 'expo.out', delay: 0.15 });
   gsap.fromTo(media, { yPercent: 0 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });

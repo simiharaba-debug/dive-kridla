@@ -36,15 +36,16 @@ $banner = site_banner();
   <script src="<?= e(asset('assets/js/theme-init.js')) ?>"></script>
   <link rel="stylesheet" href="<?= e(asset('assets/css/style.css')) ?>">
   <link rel="stylesheet" href="<?= e(asset('assets/css/bo-ui.css')) ?>">
+  <script defer src="<?= e(asset('assets/js/speed.js')) ?>"></script>
   <script defer src="<?= e(asset('assets/js/main.js')) ?>"></script>
   <script defer src="<?= e(asset('assets/js/bo-ui.js')) ?>"></script>
 <?php if ($fx): ?>
   <link rel="stylesheet" href="<?= e(asset('assets/css/fx.css')) ?>">
   <script defer src="<?= e(asset('assets/js/fx.js')) ?>"></script>
-<?php if ($cur === 'index'): ?>  <link rel="stylesheet" href="<?= e(asset('assets/css/home.css')) ?>">
-<?php endif; ?>
+<?php if ($cur === 'index'): // GSAP potrebuje iba úvod, podstránkam stačí Lenis ?>  <link rel="stylesheet" href="<?= e(asset('assets/css/home.css')) ?>">
   <script defer src="<?= e(asset('assets/js/vendor/gsap.min.js')) ?>"></script>
   <script defer src="<?= e(asset('assets/js/vendor/ScrollTrigger.min.js')) ?>"></script>
+<?php endif; ?>
   <script defer src="<?= e(asset('assets/js/vendor/lenis.min.js')) ?>"></script>
   <script defer src="<?= e(asset('assets/js/home.js')) ?>"></script>
 <?php endif; ?>
@@ -98,6 +99,8 @@ $banner = site_banner();
                 <li><a href="admin-nastavenia">Nastavenia webu</a></li>
                 <li><a href="fotogaleria#sprava">Správa verejnej galérie</a></li>
                 <li><a href="moja-galeria">Moja administrátorská galéria</a></li>
+              <?php elseif (can_view_private_gallery()): // právo iba na prezeranie ?>
+                <li><a href="moja-galeria">Administrátorská galéria</a></li>
               <?php endif; ?>
               <li><form method="post" action="odhlasenie"><?= csrf_field() ?><button type="submit" class="nav__logout">Odhlásiť sa</button></form></li>
             </ul>

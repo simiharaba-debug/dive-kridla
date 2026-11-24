@@ -29,6 +29,8 @@ page_start('ucet');
             <li><strong>Administrácia:</strong> <a href="admin">prehľad webu a používateľov</a> · <a href="admin-fotky">fotografie stránok</a></li>
             <li><strong>Galéria:</strong> <a href="fotogaleria#sprava">nahrávať, upravovať a mazať fotografie a videá</a></li>
             <li><strong>Súkromné:</strong> <a href="moja-galeria">Moja administrátorská galéria</a></li>
+          <?php elseif (can_view_private_gallery()): ?>
+            <li><strong>Súkromné:</strong> <a href="moja-galeria">Administrátorská galéria</a> (iba prezeranie)</li>
           <?php endif; ?>
         </ul>
         <?php if (!$isAdmin): ?><p class="small muted">Správa galérie je dostupná iba administrátorom.</p><?php endif; ?>

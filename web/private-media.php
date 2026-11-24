@@ -1,6 +1,6 @@
 <?php
 // Jediná cesta k súborom súkromnej galérie. Súbory ležia mimo webu (storage/private-media) a odovzdajú sa
-// IBA prihlásenému administrátorovi – rola sa číta z databázy pri každej požiadavke. Podporuje Range (posúvanie vo videu).
+// IBA administrátorovi alebo používateľovi s právom na prezeranie (users.gallery_view) – oprávnenie sa číta z databázy pri každej požiadavke. Podporuje Range (posúvanie vo videu).
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/media.php';
@@ -18,7 +18,7 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'GET' && $method !== 'HEAD') { header('Allow: GET, HEAD'); deny(405, 'Metóda nie je povolená.'); }
 $u = current_user();
 if (!$u) deny(401, 'Nie ste prihlásený.');
-if ($u['role'] !== 'admin') deny(403, 'Prístup zamietnutý.');
+if (!can_view_private_gallery()) deny(403, 'Prístup zamietnutý.');
 if (session_status() === PHP_SESSION_ACTIVE) session_write_close();   // neblokovať ďalšie požiadavky počas streamovania
 
 $id = (int)($_GET['id'] ?? 0);

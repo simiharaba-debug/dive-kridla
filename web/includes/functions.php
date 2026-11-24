@@ -5,7 +5,8 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/media.php';
 send_security_headers();
 set_exception_handler('render_fatal_error');
-ob_start();   // výstup sa drží v pamäti, aby sa relácia/cookies mohli nastaviť aj počas vykresľovania stránky
+require_once __DIR__ . '/speed.php';
+ob_start('speed_output');   // lazy load fotografií + gzip (includes/speed.php); výstup sa drží v pamäti, aby sa relácia/cookies mohli nastaviť aj počas vykresľovania stránky
 $SITE = require __DIR__ . '/../data/site.php';
 $SERVICES = require __DIR__ . '/../data/services.php';
 require_once __DIR__ . '/site_settings.php';
