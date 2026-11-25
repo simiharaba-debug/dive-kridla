@@ -6,7 +6,7 @@ require __DIR__ . '/includes/bo_ui.php';
 $E = require __DIR__ . '/data/edukacia.php';
 $metodika = $E['metodika']; $metoda = $E['metoda'];
 page_start('vypustanie-sokolov');
-page_hero('Vypúšťanie sokolov', 'Sokoly ako prirodzený predátor holubov v meste',
+page_hero('Vypúšťanie sokolov', 'Vypúšťanie sokolov do mesta – prirodzený predátor holubov',
     'Biologická ochrana pomocou vypustených sokolov sťahovavých alebo sokolov rárohov je založená na prírodnom zákone dravec a jeho korisť.');
 $nav = ['sluzba' => 'Služba a postup', 'metodika' => 'Metodika vypúšťania', 'priebeh' => 'Priebeh vypúšťania', 'videa' => 'Videá', 'volny-let' => 'Voľný let'];
 ?>
@@ -61,4 +61,4 @@ $nav = ['sluzba' => 'Služba a postup', 'metodika' => 'Metodika vypúšťania', 
     <div class="btn-row reveal"><a class="btn btn--outline" href="odchov-sokolov">Projekt SOKOL a odchov</a></div>
   </div>
 </section>
-<?php access_request($ACCESS_TOPICS[1], 'informacie'); other_pages('vypustanie-sokolov'); page_end();
+<?php faq_block('vypustanie-sokolov'); access_request($ACCESS_TOPICS[1], 'informacie'); other_pages('vypustanie-sokolov'); page_end();

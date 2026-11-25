@@ -8,6 +8,17 @@ Options -Indexes
   Require all denied
 </FilesMatch>
 RewriteEngine On
+
+# Jedna adresa webu: www → bez www (dôležité pre vyhľadávače)
+RewriteCond %{HTTP_HOST} ^www\.(divekridla\.sk)$ [NC]
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
+# http → https: prednostne zapnúť v administrácii hostingu; inak odkomentovať AŽ po zapnutí SSL a overiť, že nevzniká slučka
+# RewriteCond %{HTTPS} !=on
+# RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+# RewriteCond %{REQUEST_URI} !^/\.well-known/
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^(storage|includes|data|migrations|bin)(/|$) - [F,L]
 
 # Skryté prípony: staré adresy /stranka.php → 301 na /stranka, /index.php → / (iba GET/HEAD, nie api/)

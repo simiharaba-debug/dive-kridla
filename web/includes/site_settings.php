@@ -135,7 +135,7 @@ function site_apply_seo(array &$SITE): void {
 
 const HOME_DEFAULTS = [
     'eyebrow' => 'OZ Divé krídla · Biologická ochrana',
-    'title' => 'Prirodzená ochrana pred premnoženými vtákmi',
+    'title' => 'Odchyt holubov a biologická ochrana pomocou dravcov',
     'lead' => 'Odchyt mestských holubov, vypúšťanie sokolov do mesta a ochrana sadov a viníc pomocou dravých vtákov. Služby poskytujeme po dohode – cena dohodou.',
     'slogan' => 'Mestské holuby – Váš problém, naša starosť.',
     'cta_title' => 'Navrhneme riešenie priamo pre vašu lokalitu',

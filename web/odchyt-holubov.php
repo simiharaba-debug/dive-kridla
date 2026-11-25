@@ -34,4 +34,4 @@ page_hero('Odchyt holubov', 'Odchyt mestských holubov do pascí a na povalách'
     </div>
   </div>
 </section>
-<?php access_request($ACCESS_TOPICS[0]); other_pages('odchyt-holubov'); page_end();
+<?php faq_block('odchyt-holubov'); access_request($ACCESS_TOPICS[0]); other_pages('odchyt-holubov'); page_end();

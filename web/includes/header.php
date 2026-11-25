@@ -30,7 +30,10 @@ $banner = site_banner();
   <meta property="og:site_name" content="OZ Divé krídla – biologická ochrana">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($desc) ?>">
-  <meta property="og:image" content="assets/img/farma-2.webp">
+  <meta property="og:image" content="<?= e(abs_url('assets/og.jpg')) ?>">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+<?php seo_head($title, $desc, $noindex); // canonical, schema.org – includes/seo.php ?>
   <link rel="preload" href="assets/fonts/fraunces-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <script src="<?= e(asset('assets/js/theme-init.js')) ?>"></script>

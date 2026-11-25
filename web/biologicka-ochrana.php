@@ -2,7 +2,7 @@
 require __DIR__ . '/includes/functions.php';
 require __DIR__ . '/includes/bo_ui.php';
 page_start('biologicka-ochrana');
-page_hero('Biologická ochrana', 'Dravce ako prirodzený prostriedok proti škodám',
+page_hero('Biologická ochrana', 'Biologická ochrana sadov, viníc a polí pomocou dravcov',
     'Ochrana sadov, viníc a polí pred náletmi škorcov a iných vtákov pomocou sokoliarsky vycvičených dravcov.');
 ?>
 <section class="band">
@@ -36,4 +36,4 @@ page_hero('Biologická ochrana', 'Dravce ako prirodzený prostriedok proti škod
   <a class="btn btn--dark" href="vseobecne-sokoliarstvo#skodcovia">Druhy spôsobujúce škody</a>
   <a class="btn btn--outline" href="priame-kontaktovanie">Dohodnúť ochranu</a>
 </div></section>
-<?php other_pages('biologicka-ochrana'); page_end();
+<?php faq_block('biologicka-ochrana'); other_pages('biologicka-ochrana'); page_end();

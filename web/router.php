@@ -9,6 +9,7 @@ if (preg_match('#(^|/)(\.|storage/|includes/|data/|migrations/|bin/)#', ltrim($p
     || $path === '/router.php') {
     http_response_code(404); include __DIR__ . '/404.php'; return true;
 }
+if ($path === '/sitemap.xml') { require __DIR__ . '/sitemap.php'; return true; }
 $file = __DIR__ . $path;
 // Skryté prípony: /stranka.php → 301 na /stranka (a /index.php → /). Platí len pre GET/HEAD, formuláre (POST) idú priamo.
 if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)

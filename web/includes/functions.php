@@ -3,6 +3,7 @@
 require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/media.php';
+require_once __DIR__ . '/seo.php';
 send_security_headers();
 set_exception_handler('render_fatal_error');
 require_once __DIR__ . '/speed.php';
@@ -96,7 +97,7 @@ function page_start($slug) {
     $GLOBALS['CURRENT'] = $slug;
     $title = $page['title'];
     $desc = $page['description'];
-    $noindex = !empty($page['noindex']);
+    $noindex = !empty($page['noindex']) || http_response_code() === 404;
     if ($noindex && !headers_sent()) header('X-Robots-Tag: noindex, nofollow');
     if (in_array($slug, ADMIN_LAYOUT_PAGES, true) && is_admin()) { $GLOBALS['ADMIN_LAYOUT'] = true; include __DIR__ . '/admin_header.php'; return; }
     include __DIR__ . '/header.php';

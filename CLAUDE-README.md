@@ -70,6 +70,9 @@ Nepoužívané: `data/galeria.php`, `_stiahni-webnode.php`.
 | bezpečnostné hlavičky (CSP) | `includes/security.php` |
 | databázová zmena | nový `migrations/00X_*.sql` **aj** `migrations/pgsql/00X_*.sql` |
 | adresy bez .php, presmerovania | `.htaccess` (hosting) **aj** `router.php` (lokálne) – meniť oba |
+| SEO: canonical, schema.org, sitemap, overenie Google | `includes/seo.php`, `sitemap.php`, `robots.txt`; titulky Administrácia → SEO, pôvodné `data/site.php` (titulok do 60, popis do 160 znakov) |
+| časté otázky | `data/faq.php` (iba fakty z webu) |
+| doména webu | `.env` `SITE_URL` (predvolené https://divekridla.sk), `robots.txt`, www presmerovanie v `.htaccess` |
 | rýchlosť, lazy load | `includes/speed.php`, `assets/js/speed.js` |
 
 Poradie CSS: `style.css` → `bo-ui.css` → `fx.css` → `home.css` (len úvod) → paleta z DB; neskoršie prebíja skoršie.
@@ -79,7 +82,7 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 1. Syntax: `web\tools\php\php.exe -l web\subor.php`.
 2. START-WEB.bat → pozrieť na PC aj 390 px, svetlý aj tmavý režim, konzola bez chýb. Pri fotkách aj KONTROLA-FOTIEK.bat.
 3. Doplniť Denník zmien (a túto mapu, ak sa zmenila štruktúra).
-4. `OBNOVIT-ONLINE.bat` (statická verzia) → commit → push.
+4. Commit → push. (GitHub Pages používateľ vypol 25. 11. 2026, `OBNOVIT-ONLINE.bat` sa už nespúšťa; `*.html` v koreni sú zastarané.)
 5. Po spustení hostingu: nahrať zmenené súbory (nižšie).
 
 ## Hosting – výber a nasadenie (pripravené 25. 11. 2026, ZATIAĽ NENASADENÉ)
@@ -105,7 +108,8 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 - Všetky stránky 200, `/odchyt-holubov.php` → 301, neexistujúca adresa 404, http → https.
 - Zablokované musia byť (403/404): `/.env`, `/storage/app.sqlite`, `/includes/db.php`, `/data/site.php`, `/migrations/001_init.sql`, `/bin/migrate.php`, `/README.md`.
 - Prihlásenie admina (robí používateľ), nahratie a zmazanie fotky, odoslanie formulára, telefón 390 px.
-- Potom: `og:image` na absolútnu adresu, sitemap, rozhodnúť o GitHub Pages (duplicitný obsah).
+- Potom: presmerovanie http → https, `/sitemap.xml` a `/robots.txt` = 200, www → bez www, Search Console (overiť doménu, odoslať sitemap.xml), Bing.
+  Vypnúť testovacie oznámenie „Vyber oznamenie“ (je v databáze).
 
 ### Aktualizácia po spustení
 **Pravda je potom databáza na serveri.** Nikdy neprepísať serverové `.env`, `storage/`, `uploads/`. Nahrávať len zmenený kód
@@ -447,3 +451,4 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 - 24. 11. 2026 - Zaloha `_zaloha\2026-11-24_pred-lazyload`. Lazy load, mensie verzie fotiek, prednacitanie, pravo prezerat galeriu, online verzia pre GitHub Pages. Merane v headless Edge: uvod 2197 -> 594 KB, odchov 3082 -> 322 KB. Prava testovane na kopii DB.
 - 24. 11. 2026 - theme-init.js: verejna stranka po otvoreni a obnoveni zacina uplne hore (oznamenie bolo odrezane kvoli zapamatanemu posunu); navrat Spat poziciu zachova.
 - 25. 11. 2026 – CLAUDE-README: mapa „ZAČNI TU“, výber hostingu a postup nasadenia; nový `CLAUDE.md`. Kód webu nezmenený, nič nenasadené.
+- 25. 11. 2026 (SEO) – záloha `_zaloha�6-11-25_pred-seo` (bez assets). `includes/seo.php`, `sitemap.php`, `data/faq.php`, `assets/og.jpg`; nové titulky a popisy, H1 na úvode, Vypúšťaní, Biologickej ochrane a Rehabilitácii, vlastné titulky kategórií galérie, časté otázky na 4 stránkach, 404 = noindex. Test: 17 adries, JSON-LD, 29 adries v sitemap, svetlý/tmavý, 390 px bez horizontálneho posúvania. `.htaccess` netestované na Apache. Domény a Search Console ešte nie sú.

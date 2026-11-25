@@ -330,6 +330,15 @@ function gallery_page(string $scope): void {
         if (!$cat) { $notFound = true; $slug = ''; http_response_code(404); }
     }
     $private = $scope === 'private';
+    if (!$private && $slug !== '') {   // vlastný titulok, popis a kanonická adresa kategórie
+        global $SITE;
+        $label = $cat ? $cat['title'] : 'Videá';
+        $what = !$cat || $cat['kind'] === 'video' ? 'videá' : 'fotografie';
+        $SITE['pages']['fotogaleria']['title'] = $label . ($cat ? ' – ' . $what : ' zo sokoliarstva a odchovu dravcov') . ' | OZ Divé krídla';
+        $SITE['pages']['fotogaleria']['description'] = ($cat && $cat['description'] !== '' ? $cat['description'] . ' ' : '') . ($cat ? $label . ' – ' . $what . ' OZ Divé krídla.' : 'Videá z odchovu dravých vtákov, liahnutia a vypúšťania sokolov. OZ Divé krídla.');
+        $GLOBALS['SEO_QUERY'] = 'kategoria=' . $slug;
+        $GLOBALS['SEO_LABEL'] = $label;
+    }
     page_start($private ? 'moja-galeria' : 'fotogaleria');
 
     if ($slug === '') {

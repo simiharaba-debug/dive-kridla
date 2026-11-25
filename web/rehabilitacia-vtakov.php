@@ -5,7 +5,7 @@ $R = (require __DIR__ . '/data/rehabilitacia.php')['rehabilitacia'];
 $S = require __DIR__ . '/data/sokoliarstvo.php';
 $titles = ['Elektrické vedenia', 'Ilegálny odstrel a pasce', 'Jedy a chemizácia', 'Vyrušovanie a doprava'];
 page_start('rehabilitacia-vtakov');
-page_hero('Rehabilitácia vtákov', 'Starostlivosť o handicapované živočíchy a návrat do prírody', $R['lead']);
+page_hero('Rehabilitácia vtákov', 'Rehabilitácia vtákov a pomoc poraneným dravcom', $R['lead']);
 ?>
 <section class="band">
   <div class="container two-col">
@@ -39,4 +39,4 @@ page_hero('Rehabilitácia vtákov', 'Starostlivosť o handicapované živočích
     </ul>
   </div>
 </section>
-<?php access_request($ACCESS_TOPICS[3], 'informacie'); other_pages('rehabilitacia-vtakov'); page_end();
+<?php faq_block('rehabilitacia-vtakov'); access_request($ACCESS_TOPICS[3], 'informacie'); other_pages('rehabilitacia-vtakov'); page_end();
