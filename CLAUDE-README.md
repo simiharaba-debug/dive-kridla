@@ -4,10 +4,117 @@ Tento súbor si Claude udržiava aktuálny, aby pri ďalšej práci vedel, čo v
 a čo už bolo zmenené. Po každej väčšej úprave doplniť sekciu „Denník zmien“.
 (Kópia je aj v Claude projekte „stranka biologicka ochrana“ ako claude/CLAUDE-README.md.)
 
+## ZAČNI TU – rýchla orientácia (stav 25. 11. 2026)
+- **Aktuálna kópia: `C:\Users\simih\Desktop\dive-kridla`** (git, vetva main, GitHub `simiharaba-debug/dive-kridla`, repozitár je VEREJNÝ).
+  `Desktop\biologicka-ochrana-php` je staršia kópia z 23. 11. – neupravovať. Staré cesty nižšie v texte sú historické.
+- Pred prácou: `git fetch` + `git status -sb` (používateľ pracuje aj na inom zariadení). V gite NIE SÚ: `web/.env`, `web/storage/*` (databáza),
+  `web/uploads/*`, `web/tools`, `_zaloha`. Na inom zariadení ich treba preniesť ručne.
+- Zdroj webu = `web/`. Súbory `*.html` v koreni sú VYGENEROVANÉ (GitHub Pages) – neupravovať ručne.
+- Čistý PHP 8.1+ / CSS / JS, bez frameworku, bez npm, bez buildu. Databáza SQLite, migrácie sa spúšťajú samé.
+- `.env` nikdy nevypisovať (heslá); zistiť sa smie len to, ktoré kľúče sú vyplnené.
+
+### Ako vzniká stránka
+`stránka.php` → `includes/functions.php` (načíta data/site.php, data/services.php, nastavenia z DB) → `page_start('slug')` (header.php, pri admin
+stránkach admin_header.php) → `page_hero()` → obsah z `data/*.php` → `page_end()` (footer.php) → `speed_output()` (lazy load, gzip).
+
+**Najprv zisti, či hodnotu neprepisuje databáza.** Databáza (administrácia) má prednosť pred `data/*.php`. Prepisuje sa: texty úvodu, kontakt,
+SEO, oznámenie, farby, vzhľad a efekty (`site_settings`), hlavné fotky a náhľady (`page_photos`, `page_photo_pos`), kategórie galérie
+(`gallery_categories`, `gallery_overrides`), pridané videá (`videos`), nahraté fotky (`media`).
+
+### Stránka → šablóna → texty
+| Adresa | Šablóna (web/) | Texty (web/data/) |
+|---|---|---|
+| `/` | `index.php` (starý dizajn služieb: `includes/home_predosly.php`) | služby a témy priamo v index.php; nadpis/perex/výzva `HOME_DEFAULTS` v `includes/site_settings.php`; čísla `services.php` |
+| `/odchyt-holubov` | `odchyt-holubov.php` | `services.php` |
+| `/vypustanie-sokolov` | `vypustanie-sokolov.php` | `services.php`, `edukacia.php` |
+| `/biologicka-ochrana` | `biologicka-ochrana.php` | `services.php` |
+| `/odchov-sokolov` | `odchov-sokolov.php` | `sokol.php`, `odchov.php`, `sokoliarstvo.php` |
+| `/vseobecne-sokoliarstvo` | `vseobecne-sokoliarstvo.php` | `sokoliarstvo.php` |
+| `/rehabilitacia-vtakov` | `rehabilitacia-vtakov.php` | `rehabilitacia.php`, `sokoliarstvo.php` |
+| `/anatomia-dravcov` | `anatomia-dravcov.php` | `anatomia.php` |
+| `/zdravie-dravcov` | `zdravie-dravcov.php` | `zdravie.php` |
+| `/nieco-o-nas` | `nieco-o-nas.php` | `o-nas.php` |
+| `/fotogaleria`, `/moja-galeria` | `includes/gallery_page.php` | databáza; pôvodné `media.php`, `videos.php` |
+| `/priame-kontaktovanie` | `priame-kontaktovanie.php` | `site.php` (contact) |
+| odoslanie formulárov | `kontakt-odoslat.php` → `includes/mailer.php` | SMTP v `.env` |
+| účty | `prihlasenie` `registracia` `ucet` `odhlasenie` | `includes/auth.php` |
+| administrácia | `admin` `admin-nastavenia` `admin-fotky` `admin-pouzivatelia` | `includes/admin_*.php` |
+
+Ďalšie dáta: `galerie.php` (fotky v galérii podstránky), `page_photos.php` (pôvodné hlavné fotky), `site.php` (menu, SEO, kontakt).
+Nepoužívané: `data/galeria.php`, `_stiahni-webnode.php`.
+
+### Chcem zmeniť… → kam ísť
+| Zmena | Kde |
+|---|---|
+| telefón, e-mail, text kontaktu | Administrácia → Nastavenia → Kontakt; pôvodné `data/site.php` |
+| kam chodia správy z formulára | `.env` `MAIL_TO` |
+| nadpis a perex úvodu | Administrácia → Úvodná stránka; pôvodné `HOME_DEFAULTS` |
+| karty služieb / témy na úvode | `index.php` (`$cards`, `$topics`) |
+| menu, názvy stránok | `data/site.php` `pages`: `main`/`nav` = hlavné menu, ostatné „Ďalšie“, `hidden` = nikde |
+| nová podstránka | `nazov.php` (skopíruj `anatomia-dravcov.php`) + `data/site.php` + `data/page_photos.php` + dlaždica v index.php |
+| hlavička / pätička / logo | `includes/header.php`, `includes/footer.php`, `includes/logo.php` + `assets/favicon.svg` |
+| farby | Administrácia → Farby; kód bo-ui.css časť 13, `PALETTE_*` v site_settings.php |
+| písmo, základ, formuláre | `assets/css/style.css`; veľkosť rozhrania fx.css časť 17 |
+| úvod – vzhľad / pohyb | `assets/css/home.css` / `assets/js/home.js` |
+| animácie, kurzor, opona, náklon | `assets/css/fx.css` + `assets/js/fx.js` (očíslované časti) |
+| galéria „+N“, lightbox, okno videa | `assets/js/bo-ui.js` + bo-ui.css časti 4–6; HTML `includes/bo_ui.php` |
+| mobilné menu, téma, toasty, formuláre | `assets/js/main.js`; prvé vykreslenie `assets/js/theme-init.js` |
+| vzhľad administrácie | `assets/css/admin.css` + `assets/js/admin.js`; menu `includes/admin_ui.php` |
+| správa galérie | `includes/gallery.php` (logika), `includes/gallery_page.php` (HTML), `assets/js/bo-gallery-admin.js`, bo-ui.css časť 15 |
+| hlavné fotky stránok, výrez | `admin-fotky.php`, `includes/page_photos.php`, `assets/js/bo-page-photos.js`, bo-ui.css časti 16 a 22 |
+| nová fotka v kóde | `assets/img/ID.webp` + `ID-sm.webp` + riadok v `data/media.php` → `OBRAZKY-VARIANTY.bat` → `KONTROLA-FOTIEK.bat` |
+| nové video | Fotogaléria → Pridať video, alebo `data/videos.php` |
+| etapy odchovu | `data/sokol.php`, bo-ui.css časti 7 a 19 |
+| práva, prihlásenie, limity pokusov | `includes/auth.php`, `includes/passwords.php` |
+| nahrávanie, veľkosť súborov | `includes/media.php`, `.env` `MAX_IMAGE_MB`, `.user.ini`, `.htaccess` |
+| bezpečnostné hlavičky (CSP) | `includes/security.php` |
+| databázová zmena | nový `migrations/00X_*.sql` **aj** `migrations/pgsql/00X_*.sql` |
+| adresy bez .php, presmerovania | `.htaccess` (hosting) **aj** `router.php` (lokálne) – meniť oba |
+| rýchlosť, lazy load | `includes/speed.php`, `assets/js/speed.js` |
+
+Poradie CSS: `style.css` → `bo-ui.css` → `fx.css` → `home.css` (len úvod) → paleta z DB; neskoršie prebíja skoršie.
+V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11 prepisuje časť 13 – farby meniť v 13.
+
+### Po každej zmene
+1. Syntax: `web\tools\php\php.exe -l web\subor.php`.
+2. START-WEB.bat → pozrieť na PC aj 390 px, svetlý aj tmavý režim, konzola bez chýb. Pri fotkách aj KONTROLA-FOTIEK.bat.
+3. Doplniť Denník zmien (a túto mapu, ak sa zmenila štruktúra).
+4. `OBNOVIT-ONLINE.bat` (statická verzia) → commit → push.
+5. Po spustení hostingu: nahrať zmenené súbory (nižšie).
+
+## Hosting – výber a nasadenie (pripravené 25. 11. 2026, ZATIAĽ NENASADENÉ)
+- Odporúčaný balík: **Webhosting Start** (5 GB, 1 doména). Web na serveri zaberie asi 75 MB, videá sú na YouTube, MySQL netreba (SQLite).
+  V ponuke Startu nie sú denné zálohy → zálohovať databázu a fotky ručne. Poskytovateľ zatiaľ nepotvrdený.
+- Nutné: PHP 8.1+ (lokálne 8.3) s `pdo_sqlite`, `gd` + WebP, `mbstring`, `fileinfo`, `openssl`, `exif`; Apache alebo kompatibilný server
+  s `.htaccess` a mod_rewrite; FTPS/SFTP; SSL; zapisovateľné `storage/` a `uploads/`; odchádzajúce SMTP (587/465).
+  Na MySQL web nefunguje (podporované je SQLite a PostgreSQL).
+
+### Prvé nasadenie
+1. Koreň domény = OBSAH priečinka `web/` (nie celý repozitár, nie `*.html` z koreňa).
+2. Nenahrávať: `tools/`, `*.bat`, `*.ps1`, `router.php`, `_stiahni-webnode.php`, `.env.bak*`, `storage/*.log`, `storage/server.*`,
+   `assets/online/`. Priečinok `bin/` treba len pri prístupe cez SSH.
+3. Databáza: kópia cez `ZALOHA-DATABAZY.bat` → nahrať ako `storage/app.sqlite` (nie priamo otvorený súbor – WAL).
+   Vopred odstrániť testovací účet `test-claude` (so súhlasom používateľa). Nahrať aj `uploads/` a `storage/private-media/`.
+4. `.env` pre server: ADMIN_*, SMTP_*, MAIL_*; heslá vypĺňa používateľ sám. Ideálne `DB_PATH` a `PRIVATE_MEDIA_DIR` mimo webroot.
+   Ak HTTPS končí na proxy: `TRUST_PROXY=1`.
+5. SSL zapnúť pred prvou návštevou cez https (web posiela HSTS aj pre subdomény), potom presmerovanie http → https; `.htaccess` ho zatiaľ nemá.
+6. Chyba 500 hneď po nahratí: preveriť v `.htaccess` a `uploads/.htaccess` riadky `Options` a `Header` mimo IfModule.
+   `.user.ini` žiada `memory_limit=768M` – hosting môže mať nižší strop.
+
+### Kontrola po nasadení
+- Všetky stránky 200, `/odchyt-holubov.php` → 301, neexistujúca adresa 404, http → https.
+- Zablokované musia byť (403/404): `/.env`, `/storage/app.sqlite`, `/includes/db.php`, `/data/site.php`, `/migrations/001_init.sql`, `/bin/migrate.php`, `/README.md`.
+- Prihlásenie admina (robí používateľ), nahratie a zmazanie fotky, odoslanie formulára, telefón 390 px.
+- Potom: `og:image` na absolútnu adresu, sitemap, rozhodnúť o GitHub Pages (duplicitný obsah).
+
+### Aktualizácia po spustení
+**Pravda je potom databáza na serveri.** Nikdy neprepísať serverové `.env`, `storage/`, `uploads/`. Nahrávať len zmenený kód
+(`git diff --name-only <nasadený commit> -- web`), predtým stiahnuť zálohu. Nasadený commit zapisovať do Denníka zmien.
+
 ## Projekt
 - Web OZ Divé krídla – biologická ochrana pomocou dravých vtákov (renovácia viacerých starších stránok).
 - Na webe je uvedený len Daniel Haraba (tel. 0907 419 111), žiadne iné osoby ani odkazy na iné organizácie.
-- Umiestnenie na počítači „simonpc“: `C:\Users\simih\Desktop\biologicka-ochrana-php\web` (22. 11. 2026 pracované na Ploche; 17. 11. sa spomínal aj `D:\rp\biologicka-ochrana-php\web` – overiť, ktorá kópia je aktuálna)
+- Umiestnenie: pozri „ZAČNI TU“.
 - Fotky na spracovanie: `C:\Users\simih\Desktop\fotky cerpanie`
 
 ## Spustenie
@@ -339,3 +446,4 @@ a čo už bolo zmenené. Po každej väčšej úprave doplniť sekciu „Denník
   Test: 17 stránok × 7 rozlíšení, hover sweep, admin a predošlý dizajn na dočasnej kópii (zmazaná).
 - 24. 11. 2026 - Zaloha `_zaloha\2026-11-24_pred-lazyload`. Lazy load, mensie verzie fotiek, prednacitanie, pravo prezerat galeriu, online verzia pre GitHub Pages. Merane v headless Edge: uvod 2197 -> 594 KB, odchov 3082 -> 322 KB. Prava testovane na kopii DB.
 - 24. 11. 2026 - theme-init.js: verejna stranka po otvoreni a obnoveni zacina uplne hore (oznamenie bolo odrezane kvoli zapamatanemu posunu); navrat Spat poziciu zachova.
+- 25. 11. 2026 – CLAUDE-README: mapa „ZAČNI TU“, výber hostingu a postup nasadenia; nový `CLAUDE.md`. Kód webu nezmenený, nič nenasadené.
