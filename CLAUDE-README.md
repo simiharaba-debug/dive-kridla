@@ -487,3 +487,9 @@ na serveri `php8.5 -l` a kontrola `~/logs/php.log`. `.htaccess` zmeny overiť cu
   390 px bez pretekania, svetlý/tmavý režim, mobilné menu, lightbox, 404; PHP log prázdny. Nasadený commit: 6a819a0 (+ tento README).
 - 26. 11. 2026 (večer) – so súhlasom používateľa cez administráciu na produkcii: zmazaný účet `test-claude` (ostali 2 účty) a vypnuté testovacie
   oznámenie „Vyber oznamenie“ (text ostal uložený, prepínač vypnutý). Overené: žiadna verejná stránka už pruh oznámenia nemá.
+- 26. 11. 2026 (večer, SEO) – **hlavná činnosť = odchyt holubov** (želanie používateľa; tak má web predstavovať Google aj AI). Ikona pre výsledky Google:
+  `favicon.ico` v koreni (16/32/48), `assets/icon-48/96/192/512.png`, `assets/apple-touch-icon.png` (z `favicon.svg` cez headless Chrome + GD),
+  `site.webmanifest`. schema.org: `Organization` (predtým NGO) s popisom začínajúcim odchytom holubov, `slogan`, logo PNG 512. Nové popisy úvodu
+  a O nás, `og:site_name`. Nový `llms.txt` (súhrn pre AI). `.htaccess`: UTF-8 pre .txt a .webmanifest. Nasadené cez SSH a overené (všetko 200,
+  JSON-LD platné). Search Console: úvod a odchyt-holubov už **sú v indexe**, biologicka-ochrana „Objavené – momentálne nie je v indexe“; pre všetky tri
+  vyžiadané indexovanie. Prvé miesto vo výsledkoch sa zaručiť nedá – najviac pomôže Firemný profil Google a odkazy z iných webov.

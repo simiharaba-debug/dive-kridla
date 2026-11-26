@@ -53,6 +53,10 @@ RewriteRule ^(.+)$ $1.php [L]
     Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
 </IfModule>
+<IfModule mod_mime.c>
+  # llms.txt a robots.txt sú v UTF-8 (slovenská diakritika)
+  AddCharset UTF-8 .txt .webmanifest
+</IfModule>
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/css text/javascript application/javascript image/svg+xml
 </IfModule>
