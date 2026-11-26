@@ -78,15 +78,21 @@ function seo_head(string $title, string $desc, bool $noindex): void {
     echo '  <meta property="og:url" content="' . e($url) . '">' . "\n";
     echo '  <meta name="twitter:card" content="summary_large_image">' . "\n";
 
-    $org = ['@type' => 'NGO', '@id' => $home . '#org', 'name' => $c['org'], 'alternateName' => 'Divé krídla', 'url' => $home,
-        'logo' => abs_url('assets/favicon.svg'), 'image' => abs_url('assets/og.jpg'),
+    // Hlavná činnosť = odchyt holubov (tak ju má Google a AI odpovede predstavovať); logo PNG 512 px pre výsledky vyhľadávania
+    $org = ['@type' => 'Organization', '@id' => $home . '#org', 'name' => $c['org'], 'alternateName' => ['Divé krídla', 'Divé krídla – odchyt holubov'], 'url' => $home,
+        'description' => 'Divé krídla sa zaoberá predovšetkým odborným odchytom premnožených mestských holubov – odchyt do živolovných pascí, '
+            . 'vyčistenie povál, podkroví a kostolných veží a uzavretie vletových otvorov. Ďalej ponúka vypúšťanie sokolov do miest proti holubom '
+            . 'a biologickú ochranu sadov, viníc a polí pred škorcami pomocou sokoliarsky vycvičených dravcov. Pôsobí na Slovensku, cena dohodou.',
+        'slogan' => 'Mestské holuby – Váš problém, naša starosť.',
+        'logo' => ['@type' => 'ImageObject', 'url' => abs_url('assets/icon-512.png'), 'width' => 512, 'height' => 512],
+        'image' => abs_url('assets/og.jpg'),
         'telephone' => str_replace('tel:', '', $c['phones'][0]['href']), 'email' => $c['emails'][0] ?? null,
         'areaServed' => ['@type' => 'Country', 'name' => 'Slovensko'],
         'contactPoint' => ['@type' => 'ContactPoint', 'name' => $c['name'], 'contactType' => 'customer service',
             'telephone' => str_replace('tel:', '', $c['phones'][0]['href']), 'availableLanguage' => 'sk'],
         'knowsAbout' => ['odchyt holubov', 'vypúšťanie sokolov', 'biologická ochrana', 'plašenie škorcov', 'sokoliarstvo', 'odchov dravých vtákov']];
     $graph = [array_filter($org),
-        ['@type' => 'WebSite', '@id' => $home . '#web', 'url' => $home, 'name' => 'Divé krídla', 'inLanguage' => 'sk', 'publisher' => ['@id' => $home . '#org']],
+        ['@type' => 'WebSite', '@id' => $home . '#web', 'url' => $home, 'name' => 'Divé krídla', 'alternateName' => 'Divé krídla – odchyt holubov', 'inLanguage' => 'sk', 'publisher' => ['@id' => $home . '#org']],
         ['@type' => 'WebPage', '@id' => $url . '#stranka', 'url' => $url, 'name' => $title, 'description' => $desc, 'inLanguage' => 'sk',
             'isPartOf' => ['@id' => $home . '#web'], 'about' => ['@id' => $home . '#org']]];
     if ($cur !== 'index') {

@@ -24,10 +24,14 @@ $banner = site_banner();
   <meta name="theme-color" content="<?= e(site_theme_color('light')) ?>" data-dark="<?= e(site_theme_color('dark')) ?>">
 <?php if ($noindex): ?>  <meta name="robots" content="noindex, nofollow">
 <?php endif; ?>
+  <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="sk_SK">
-  <meta property="og:site_name" content="OZ Divé krídla – biologická ochrana">
+  <meta property="og:site_name" content="Divé krídla – odchyt holubov a biologická ochrana">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($desc) ?>">
   <meta property="og:image" content="<?= e(abs_url('assets/og.jpg')) ?>">
