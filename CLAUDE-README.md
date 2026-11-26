@@ -117,7 +117,7 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 2. Nenahrávať: `tools/`, `*.bat`, `*.ps1`, `router.php`, `_stiahni-webnode.php`, `.env.bak*`, `storage/*.log`, `storage/server.*`,
    `assets/online/`. Priečinok `bin/` treba len pri prístupe cez SSH.
 3. Databáza: kópia cez `ZALOHA-DATABAZY.bat` → nahrať ako `storage/app.sqlite` (nie priamo otvorený súbor – WAL).
-   Vopred odstrániť testovací účet `test-claude` (so súhlasom používateľa). Nahrať aj `uploads/` a `storage/private-media/`.
+   Nahrať aj `uploads/` a `storage/private-media/`.
 4. `.env` pre server: ADMIN_*, SMTP_*, MAIL_*; heslá vypĺňa používateľ sám. Ideálne `DB_PATH` a `PRIVATE_MEDIA_DIR` mimo webroot.
    Ak HTTPS končí na proxy: `TRUST_PROXY=1`.
 5. SSL zapnúť pred prvou návštevou cez https (web posiela HSTS aj pre subdomény), potom presmerovanie http → https; `.htaccess` ho zatiaľ nemá.
@@ -129,7 +129,6 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 - Zablokované musia byť (403/404): `/.env`, `/storage/app.sqlite`, `/includes/db.php`, `/data/site.php`, `/migrations/001_init.sql`, `/bin/migrate.php`, `/README.md`.
 - Prihlásenie admina (robí používateľ), nahratie a zmazanie fotky, odoslanie formulára, telefón 390 px.
 - Potom: presmerovanie http → https, `/sitemap.xml` a `/robots.txt` = 200, www → bez www, Search Console (overiť doménu, odoslať sitemap.xml), Bing.
-  Vypnúť testovacie oznámenie „Vyber oznamenie“ (je v databáze).
 
 ### Aktualizácia po spustení
 **Pravda je potom databáza na serveri.** Nikdy neprepísať serverové `.env`, `storage/`, `uploads/`, `private/`. Nahrávať len zmenený kód
@@ -261,7 +260,7 @@ na serveri `php8.5 -l` a kontrola `~/logs/php.log`. `.htaccess` zmeny overiť cu
   zapisuje php.ini podľa aktuálnej cesty; priateľská chybová stránka (render_fatal_error v functions.php).
 - Nástroje: DIAGNOSTIKA.bat / diagnostika.php (iba localhost), ZALOHA-DATABAZY.bat, OBNOVIT-DATABAZU.bat, bin/db-checkpoint.php (STOP-WEB).
 - PostgreSQL: `DB_DSN=pgsql:...` + `migrations/pgsql/` (citext). Otestované v kontajneri s PostgreSQL 16.
-- Testovací účet na PC používateľa: `test-claude` / test-claude@example.test (vytvorený pri teste registrácie) – dá sa zmazať.
+- Testovací účet na PC používateľa: `test-claude` / test-claude@example.test (vytvorený pri teste registrácie) – na produkcii zmazaný 26. 11. 2026, v lokálnej DB môže ešte byť.
 
 ## Videá – IBA YouTube, modálne okno (17. 11. 2026)
 - Na webe nie je žiadny vlastný videosúbor. Evidencia: `data/videos.php` (kľúč => yt ID, názov, popis, rozmery w/h, dĺžka, dátum, téma)
@@ -486,3 +485,5 @@ na serveri `php8.5 -l` a kontrola `~/logs/php.log`. `.htaccess` zmeny overiť cu
   so súhlasom používateľa – **nemazať**), sitemap.xml odoslaná (stav Úspech, 29 stránok), vyžiadané indexovanie úvodu (zatiaľ neindexované).
   Produkčný test: admin, všetky stránky administrácie, nahratie + zmazanie fotky vo verejnej aj súkromnej galérii (anonym 401), 665 interných odkazov bez chyby,
   390 px bez pretekania, svetlý/tmavý režim, mobilné menu, lightbox, 404; PHP log prázdny. Nasadený commit: 6a819a0 (+ tento README).
+- 26. 11. 2026 (večer) – so súhlasom používateľa cez administráciu na produkcii: zmazaný účet `test-claude` (ostali 2 účty) a vypnuté testovacie
+  oznámenie „Vyber oznamenie“ (text ostal uložený, prepínač vypnutý). Overené: žiadna verejná stránka už pruh oznámenia nemá.
