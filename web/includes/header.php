@@ -66,9 +66,9 @@ $banner = site_banner();
 <?php endif; ?>
 <header class="site-header">
   <div class="container site-header__bar">
-    <a class="logo" href="./" aria-label="Divé krídla – biologická ochrana, úvodná stránka">
+    <a class="logo" href="./">
       <?= logo_svg(40, 'logo__mark') ?>
-      <span><strong>Divé krídla</strong><small>Biologická ochrana</small></span>
+      <span><strong>Divé krídla</strong> <small>Biologická ochrana</small><b class="sr-only">, úvodná stránka</b></span>
     </a>
     <button class="nav-toggle" aria-expanded="false" aria-controls="menu" aria-label="Otvoriť menu"><span></span><span></span><span></span></button>
     <nav id="menu" class="nav" aria-label="Hlavná navigácia">

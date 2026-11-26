@@ -13,21 +13,27 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^www\.(divekridla\.sk)$ [NC]
 RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
-# http → https: prednostne zapnúť v administrácii hostingu; inak odkomentovať AŽ po zapnutí SSL a overiť, že nevzniká slučka
-# RewriteCond %{HTTPS} !=on
-# RewriteCond %{HTTP:X-Forwarded-Proto} !=https
-# RewriteCond %{REQUEST_URI} !^/\.well-known/
-# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+# http → https (Webglobe: SSL ukončuje nginx a posiela X-Forwarded-Proto; zapnuté 26. 11. 2026, bez slučky overené)
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+# Cron Webglobe volá http:// a nemusí sledovať presmerovanie; cron-zaloha povoľuje iba IP Cronu Webglobe
+RewriteCond %{REQUEST_URI} !^/cron-zaloha\.php$
+RewriteRule ^ https://divekridla.sk%{REQUEST_URI} [R=301,L,NE]
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^(storage|includes|data|migrations|bin)(/|$) - [F,L]
 
 # Skryté prípony: staré adresy /stranka.php → 301 na /stranka, /index.php → / (iba GET/HEAD, nie api/)
+# REDIRECT_STATUS prázdny = nie pri internom presmerovaní na chybovú stránku (403/404 → 404.php)
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
 RewriteCond %{THE_REQUEST} \s(\S*?/)index\.php[\s?]
 RewriteRule ^(.*/)?index\.php$ %1 [R=301,L,NE]
+# cieľ s lomkou na začiatku – inak Apache do presmerovania vloží cestu na disku servera
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$
 RewriteCond %{THE_REQUEST} \.php[\s?]
-RewriteRule ^((?!api/).+?)\.php$ $1 [R=301,L]
+RewriteRule ^((?!api/|cron-zaloha\.php).+?)\.php$ /$1 [R=301,L]
 
 # Adresy bez prípony .php (napr. /odchyt-holubov)
 RewriteCond %{REQUEST_FILENAME} !-f

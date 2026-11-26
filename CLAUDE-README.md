@@ -85,7 +85,27 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 4. Commit → push. (GitHub Pages používateľ vypol 25. 11. 2026, `OBNOVIT-ONLINE.bat` sa už nespúšťa; `*.html` v koreni sú zastarané.)
 5. Po spustení hostingu: nahrať zmenené súbory (nižšie).
 
-## Hosting – výber a nasadenie (pripravené 25. 11. 2026, ZATIAĽ NENASADENÉ)
+## Hosting – NASADENÉ 26. 11. 2026 na Webglobe (https://divekridla.sk)
+- **Webglobe Webhosting Start**, administrácia https://admin.webglobe.sk (prihlasuje sa používateľ, povinné 2FA),
+  expirácia 24. 11. 2029. Kvóta 5 GB (FTP 2 GB). Server za nginx + Apache (`.htaccess` funguje), **PHP 8.5 (FPM)**, prepínač 8.4/8.5 v Web → PHP nastavenia.
+- Rozloženie na serveri (`/home/html/divekridla.sk` = domov SSH aj FTP):
+  `public_html/` = obsah `web/` (document root) · `private/app.sqlite` (DB_PATH) · `private/private-media/` (PRIVATE_MEDIA_DIR) ·
+  `private/zaloha.php` (= `web/bin/server-zaloha.php`) · `backup/` (denné zálohy) · `logs/php.log` (chyby PHP, display_errors vypnuté) · `tmp/` (relácie).
+- `.env` na serveri: SITE_URL, DB_PATH, PRIVATE_MEDIA_DIR, MAX_IMAGE_MB, SMTP_*/MAIL_* (Gmail SMTP). ADMIN_* tam zámerne nie sú (admin je v DB).
+- DNS spravuje Webglobe (ns1/ns2.webglobe.sk, ns3.webglobe.com), A 195.181.249.194 pre @ aj www – **nemenené**. MX mx-hub, SPF, DMARC nedotknuté.
+  AAAA záznam nie je nastavený (hosting má IPv6 2001:880:a:301::3bf – zatiaľ nepridané).
+- SSL: Let's Encrypt (divekridla.sk + www), automatické predlžovanie vo Webglobe → SSL certifikát. http → https a www → bez www v `.htaccess`.
+- **Prístup cez SSH:** iba dočasná WebSSH konzola (FTP a súbory → WebSSH → Aktivovať konzolu, 1 hodina zadarmo; permanentná je platená).
+  Host a port sa pri aktivácii menia (údaje ukáže stránka WebSSH po aktivácii). Kľúč `~/.ssh/divekridla_deploy` (na PC používateľa)
+  je v `~/.ssh/authorized_keys` na serveri → po aktivácii konzoly netreba heslo. SFTP port 222 (účet `divekridla.sk`) kľúč NEPRIJÍMA – len heslo FTP.
+  PHP v príkazovom riadku: `php8.5` (`php` = 7.3!). Na serveri je rsync, tar, sqlite3.
+- **Zálohy:** Cron vo Webglobe (Web → Cron) volá denne o 3:15 `http://divekridla.sk/cron-zaloha.php` (spustí sa len z IP Cronu Webglobe, inak 404;
+  HEAD vráti 200 kvôli kontrole Webglobe). Výsledok `~/backup/db-RRRR-MM-DD.sqlite` + `subory-RRRR-MM-DD.tar.gz` (uploads + private-media), 14 dní, log `~/backup/zaloha.log`.
+  Webhosting Start nemá automatické zálohy Webglobe. Obnova: skopírovať db-*.sqlite na `private/app.sqlite` – **iba so súhlasom používateľa**.
+- Lighthouse 26. 11. (mobil / desktop, výkon-prístupnosť-postupy-SEO): úvod 95-100-100-100 / 99-100-100-100, odchov 92-100-100-100 / 100×4,
+  galéria 98-100-100-100 / 99-100-100-100, kontakt 96-100-100-100 / 100×4. Správy v `_audit/` (nie v gite).
+
+### Pôvodný plán (25. 11. 2026)
 - Odporúčaný balík: **Webhosting Start** (5 GB, 1 doména). Web na serveri zaberie asi 75 MB, videá sú na YouTube, MySQL netreba (SQLite).
   V ponuke Startu nie sú denné zálohy → zálohovať databázu a fotky ručne. Poskytovateľ zatiaľ nepotvrdený.
 - Nutné: PHP 8.1+ (lokálne 8.3) s `pdo_sqlite`, `gd` + WebP, `mbstring`, `fileinfo`, `openssl`, `exif`; Apache alebo kompatibilný server
@@ -112,8 +132,11 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
   Vypnúť testovacie oznámenie „Vyber oznamenie“ (je v databáze).
 
 ### Aktualizácia po spustení
-**Pravda je potom databáza na serveri.** Nikdy neprepísať serverové `.env`, `storage/`, `uploads/`. Nahrávať len zmenený kód
+**Pravda je potom databáza na serveri.** Nikdy neprepísať serverové `.env`, `storage/`, `uploads/`, `private/`. Nahrávať len zmenený kód
 (`git diff --name-only <nasadený commit> -- web`), predtým stiahnuť zálohu. Nasadený commit zapisovať do Denníka zmien.
+Postup: používateľ aktivuje WebSSH konzolu (alebo použije SFTP s heslom), potom z `web/`:
+`git diff --name-only <commit> -- . | tar -cf - -T - | ssh -p PORT -i ~/.ssh/divekridla_deploy USER@HOST 'tar -xf - -C ~/public_html'`,
+na serveri `php8.5 -l` a kontrola `~/logs/php.log`. `.htaccess` zmeny overiť curl-om (presmerovania, 403/404 interných súborov).
 
 ## Projekt
 - Web OZ Divé krídla – biologická ochrana pomocou dravých vtákov (renovácia viacerých starších stránok).
@@ -451,4 +474,11 @@ V bo-ui.css je číslo 14 dvakrát (telefón; videá) a farby z častí 1a/10/11
 - 24. 11. 2026 - Zaloha `_zaloha\2026-11-24_pred-lazyload`. Lazy load, mensie verzie fotiek, prednacitanie, pravo prezerat galeriu, online verzia pre GitHub Pages. Merane v headless Edge: uvod 2197 -> 594 KB, odchov 3082 -> 322 KB. Prava testovane na kopii DB.
 - 24. 11. 2026 - theme-init.js: verejna stranka po otvoreni a obnoveni zacina uplne hore (oznamenie bolo odrezane kvoli zapamatanemu posunu); navrat Spat poziciu zachova.
 - 25. 11. 2026 – CLAUDE-README: mapa „ZAČNI TU“, výber hostingu a postup nasadenia; nový `CLAUDE.md`. Kód webu nezmenený, nič nenasadené.
-- 25. 11. 2026 (SEO) – záloha `_zaloha�6-11-25_pred-seo` (bez assets). `includes/seo.php`, `sitemap.php`, `data/faq.php`, `assets/og.jpg`; nové titulky a popisy, H1 na úvode, Vypúšťaní, Biologickej ochrane a Rehabilitácii, vlastné titulky kategórií galérie, časté otázky na 4 stránkach, 404 = noindex. Test: 17 adries, JSON-LD, 29 adries v sitemap, svetlý/tmavý, 390 px bez horizontálneho posúvania. `.htaccess` netestované na Apache. Domény a Search Console ešte nie sú.
+- 25. 11. 2026 (SEO) – záloha `_zaloha\2026-11-25_pred-seo` (bez assets). `includes/seo.php`, `sitemap.php`, `data/faq.php`, `assets/og.jpg`; nové titulky a popisy, H1 na úvode, Vypúšťaní, Biologickej ochrane a Rehabilitácii, vlastné titulky kategórií galérie, časté otázky na 4 stránkach, 404 = noindex. Test: 17 adries, JSON-LD, 29 adries v sitemap, svetlý/tmavý, 390 px bez horizontálneho posúvania. `.htaccess` netestované na Apache. Domény a Search Console ešte nie sú.
+- 26. 11. 2026 – **NASADENIE na Webglobe** (https://divekridla.sk), záloha DB pred nasadením `_zaloha\2026-11-26_pred-nasadenim\app.sqlite`.
+  PHP 8.5.13, SQLite prenesená celá (3 účty vrátane test-claude, 16 kategórií galérie…), DB a súkromné médiá v `~/private` mimo webu, SSL Let's Encrypt,
+  http→https a www→bez www. `.htaccess`: cieľ presmerovania `.php` s lomkou na začiatku (inak cesta na disku servera), REDIRECT_STATUS pri chybových
+  stránkach, výnimka pre `cron-zaloha.php`. Nové `cron-zaloha.php` + `bin/server-zaloha.php` (denná záloha cez Cron Webglobe, PharData – exec je pre FPM zakázaný).
+  `kontakt-odoslat.php`: CSRF kontrola Origin / Sec-Fetch-Site. `.user.ini`: memory 512M (strop hostingu), display_errors Off.
+  Prístupnosť úvodu 92 → 100: logo bez aria-label (viditeľný text + sr-only), veta `.law__say` so sr-only textom a stlmením až pred okrajom obrazovky.
+  Kontaktný formulár reálne otestovaný (správa doručená cez Gmail SMTP). Opravený poškodený znak v tomto súbore (riadok SEO záloha).

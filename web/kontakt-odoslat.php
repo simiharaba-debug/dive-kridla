@@ -37,6 +37,14 @@ if (!in_array(preg_replace('/\.php$/', '', $back), $allowed, true)) { $back = '.
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') { header('Allow: POST'); respond(false, 'Neplatná požiadavka.', [], 405); }
 
+// CSRF: formulár sa smie odoslať iba z tohto webu (Origin / Sec-Fetch-Site posiela každý súčasný prehliadač).
+// Bez tokenu v relácii, aby verejné stránky nemuseli zakladať cookie každému návštevníkovi.
+$originHost = parse_url((string)($_SERVER['HTTP_ORIGIN'] ?? ''), PHP_URL_HOST);
+if (($originHost && strcasecmp($originHost, (string)($_SERVER['HTTP_HOST'] ?? '')) !== 0)
+    || (($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site')) {
+    respond(false, 'Neplatná požiadavka.', [], 403);
+}
+
 // honeypot – skryté pole vypĺňajú iba roboty
 if (clean($_POST['website'] ?? '') !== '') respond(false, 'Správu sa nepodarilo odoslať.', [], 400);
 

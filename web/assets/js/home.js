@@ -58,12 +58,21 @@
   var say = d.querySelector('.law__say');
   if (say) {
     var text = say.textContent.trim();
-    say.setAttribute('aria-label', text); say.textContent = '';
+    say.textContent = '';
+    // celá veta pre čítačky obrazovky (aria-label na <p> nie je povolený), slová nižšie sú iba vizuálne
+    var sr = d.createElement('span'); sr.className = 'sr-only'; sr.textContent = text; say.appendChild(sr);
+    var words = [];
     text.split(/\s+/).forEach(function (w, i) {
       if (i) say.appendChild(d.createTextNode(' '));
-      var s = d.createElement('span'); s.setAttribute('aria-hidden', 'true'); s.textContent = w; say.appendChild(s);
+      var s = d.createElement('span'); s.setAttribute('aria-hidden', 'true'); s.textContent = w; say.appendChild(s); words.push(s);
     });
-    gsap.fromTo(say.children, { opacity: 0.22 }, { opacity: 1, stagger: 0.1, ease: 'none', scrollTrigger: { trigger: say, start: 'top 82%', end: 'bottom 50%', scrub: 0.4 } });
+    // Stlmenie (0.22) sa nastaví až keď je veta tesne pod okrajom obrazovky – kým je ďaleko, text má plný kontrast
+    // (prístupnosť / Lighthouse), efekt rozsvecovania pri posúvaní zostáva rovnaký.
+    gsap.fromTo(words, { opacity: 0.22 }, { opacity: 1, stagger: 0.1, ease: 'none', immediateRender: false,
+      scrollTrigger: { trigger: say, start: 'top 82%', end: 'bottom 50%', scrub: 0.4 } });
+    ST.create({ trigger: say, start: 'top bottom+=240',
+      onEnter: function () { gsap.set(words, { opacity: 0.22 }); },
+      onLeaveBack: function () { gsap.set(words, { opacity: 1 }); } });
   }
   var lawImg = d.querySelector('.law__photo img');
   if (lawImg) gsap.fromTo(lawImg, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '.law', start: 'top bottom', end: 'bottom top', scrub: true } });
