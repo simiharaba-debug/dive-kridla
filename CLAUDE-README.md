@@ -482,3 +482,7 @@ na serveri `php8.5 -l` a kontrola `~/logs/php.log`. `.htaccess` zmeny overiť cu
   `kontakt-odoslat.php`: CSRF kontrola Origin / Sec-Fetch-Site. `.user.ini`: memory 512M (strop hostingu), display_errors Off.
   Prístupnosť úvodu 92 → 100: logo bez aria-label (viditeľný text + sr-only), veta `.law__say` so sr-only textom a stlmením až pred okrajom obrazovky.
   Kontaktný formulár reálne otestovaný (správa doručená cez Gmail SMTP). Opravený poškodený znak v tomto súbore (riadok SEO záloha).
+- 26. 11. 2026 (popoludní) – Search Console: doména `divekridla.sk` overená DNS TXT záznamom `google-site-verification=…` (pridaný vo Webglobe DNS
+  so súhlasom používateľa – **nemazať**), sitemap.xml odoslaná (stav Úspech, 29 stránok), vyžiadané indexovanie úvodu (zatiaľ neindexované).
+  Produkčný test: admin, všetky stránky administrácie, nahratie + zmazanie fotky vo verejnej aj súkromnej galérii (anonym 401), 665 interných odkazov bez chyby,
+  390 px bez pretekania, svetlý/tmavý režim, mobilné menu, lightbox, 404; PHP log prázdny. Nasadený commit: 6a819a0 (+ tento README).
